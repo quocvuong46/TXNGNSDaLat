@@ -56,9 +56,11 @@ export class LoginPage {
         this.loading = false;
         let errorMessage = 'Đăng nhập thất bại';
         if (error.status === 0) {
-          errorMessage = 'Không kết nối được server. Kiểm tra IP/WiFi hoặc HTTP bị chặn.';
+          errorMessage = error.message || 'Không kết nối được server. Kiểm tra IP/WiFi hoặc HTTP bị chặn.';
         } else if (error.error?.message) {
           errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
         }
         await this.showToast(errorMessage);
       }
@@ -79,8 +81,9 @@ export class LoginPage {
       next: async () => {
         await this.showToast('Kết nối server OK');
       },
-      error: async () => {
-        await this.showToast('Không kết nối được server');
+      error: async (error) => {
+        const message = error?.message || 'Không kết nối được server';
+        await this.showToast(message);
       }
     });
   }

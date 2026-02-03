@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, from, map } from 'rxjs';
+import { Observable, BehaviorSubject, tap, from, map, catchError, throwError } from 'rxjs';
 import { ApiResponse, LoginRequest, RegisterRequest, User } from '../models/interfaces';
 import { Capacitor } from '@capacitor/core';
 import { Http } from '@capacitor-community/http';
@@ -39,6 +39,14 @@ export class AuthService {
             localStorage.setItem('user', JSON.stringify(response.data.user));
             this.currentUserSubject.next(response.data.user);
           }
+        }),
+        catchError((err) => {
+          const normalized = {
+            status: err?.status ?? 0,
+            message: err?.message ?? 'Native HTTP error',
+            error: err
+          };
+          return throwError(() => normalized);
         })
       );
     }
@@ -64,7 +72,15 @@ export class AuthService {
         headers: { 'Content-Type': 'application/json' },
         data
       })).pipe(
-        map(result => result.data as ApiResponse<any>)
+        map(result => result.data as ApiResponse<any>),
+        catchError((err) => {
+          const normalized = {
+            status: err?.status ?? 0,
+            message: err?.message ?? 'Native HTTP error',
+            error: err
+          };
+          return throwError(() => normalized);
+        })
       );
     }
 
@@ -106,7 +122,15 @@ export class AuthService {
       return from(Http.get({
         url: this.apiUrl
       })).pipe(
-        map(result => result.data as ApiResponse<any>)
+        map(result => result.data as ApiResponse<any>),
+        catchError((err) => {
+          const normalized = {
+            status: err?.status ?? 0,
+            message: err?.message ?? 'Native HTTP error',
+            error: err
+          };
+          return throwError(() => normalized);
+        })
       );
     }
 
