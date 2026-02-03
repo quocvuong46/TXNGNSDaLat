@@ -37,6 +37,13 @@
         <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
         <span *ngIf="!loading">Đăng nhập</span>
       </ion-button>
+
+      <div class="api-debug">
+        <p>API: {{ apiUrl }}</p>
+        <ion-button fill="clear" size="small" (click)="testServer()">
+          Kiểm tra kết nối server
+        </ion-button>
+      </div>
     </form>
 
     <div class="register-link">

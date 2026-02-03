@@ -67,4 +67,12 @@ export class AuthService {
     const user = this.getCurrentUser();
     return user?.role === role;
   }
+
+  getApiUrl(): string {
+    return this.apiUrl;
+  }
+
+  ping(): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(this.apiUrl);
+  }
 }

@@ -20,6 +20,7 @@ export class LoginPage {
     password: ''
   };
   loading = false;
+  apiUrl = '';
 
   constructor(
     private authService: AuthService,
@@ -27,6 +28,7 @@ export class LoginPage {
     private toastController: ToastController
   ) {
     addIcons({ leaf, mail, lockClosed });
+    this.apiUrl = this.authService.getApiUrl();
   }
 
   async onLogin() {
@@ -70,5 +72,16 @@ export class LoginPage {
       position: 'bottom'
     });
     toast.present();
+  }
+
+  async testServer() {
+    this.authService.ping().subscribe({
+      next: async () => {
+        await this.showToast('Kết nối server OK');
+      },
+      error: async () => {
+        await this.showToast('Không kết nối được server');
+      }
+    });
   }
 }

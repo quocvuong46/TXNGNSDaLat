@@ -83,3 +83,19 @@
     }
   }
 }
+
+.api-debug {
+  margin-top: 12px;
+  text-align: center;
+  color: #e5e5e5;
+
+  p {
+    margin: 0 0 4px 0;
+    font-size: 12px;
+  }
+
+  ion-button {
+    --color: #ffffff;
+    font-size: 12px;
+  }
+}
