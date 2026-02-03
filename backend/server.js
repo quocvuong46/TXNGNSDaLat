@@ -12,6 +12,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Request logging (for debugging mobile login/register)
+app.use((req, res, next) => {
+  if (req.url.startsWith('/api')) {
+    console.log('➡️', req.method, req.url);
+    if (Object.keys(req.body || {}).length > 0) {
+      console.log('📦 Body:', req.body);
+    }
+  }
+  next();
+});
+
 // Test route
 app.get('/', (req, res) => {
   res.json({
