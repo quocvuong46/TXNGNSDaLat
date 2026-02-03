@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, tap, from, map } from 'rxjs';
 import { ApiResponse, LoginRequest, RegisterRequest, User } from '../models/interfaces';
+import { Capacitor } from '@capacitor/core';
+import { Http } from '@capacitor-community/http';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +26,23 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<ApiResponse<{ token: string; user: User }>> {
+    if (Capacitor.isNativePlatform()) {
+      return from(Http.post({
+        url: `${this.apiUrl}/auth/login`,
+        headers: { 'Content-Type': 'application/json' },
+        data: credentials
+      })).pipe(
+        map(result => result.data as ApiResponse<{ token: string; user: User }>),
+        tap(response => {
+          if (response.success && response.data) {
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+            this.currentUserSubject.next(response.data.user);
+          }
+        })
+      );
+    }
+
     return this.http.post<ApiResponse<{ token: string; user: User }>>(
       `${this.apiUrl}/auth/login`,
       credentials
@@ -39,6 +58,16 @@ export class AuthService {
   }
 
   register(data: RegisterRequest): Observable<ApiResponse<any>> {
+    if (Capacitor.isNativePlatform()) {
+      return from(Http.post({
+        url: `${this.apiUrl}/auth/register`,
+        headers: { 'Content-Type': 'application/json' },
+        data
+      })).pipe(
+        map(result => result.data as ApiResponse<any>)
+      );
+    }
+
     return this.http.post<ApiResponse<any>>(
       `${this.apiUrl}/auth/register`,
       data
@@ -73,6 +102,14 @@ export class AuthService {
   }
 
   ping(): Observable<ApiResponse<any>> {
+    if (Capacitor.isNativePlatform()) {
+      return from(Http.get({
+        url: this.apiUrl
+      })).pipe(
+        map(result => result.data as ApiResponse<any>)
+      );
+    }
+
     return this.http.get<ApiResponse<any>>(this.apiUrl);
   }
 }
