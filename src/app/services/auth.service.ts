@@ -30,6 +30,7 @@ export class AuthService {
       return from(Http.post({
         url: `${this.apiUrl}/auth/login`,
         headers: { 'Content-Type': 'application/json' },
+        params: {},
         data: credentials
       })).pipe(
         map(result => result.data as ApiResponse<{ token: string; user: User }>),
@@ -70,6 +71,7 @@ export class AuthService {
       return from(Http.post({
         url: `${this.apiUrl}/auth/register`,
         headers: { 'Content-Type': 'application/json' },
+        params: {},
         data
       })).pipe(
         map(result => result.data as ApiResponse<any>),
