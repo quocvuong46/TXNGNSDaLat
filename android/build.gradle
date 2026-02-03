@@ -24,6 +24,18 @@ allprojects {
     }
 }
 
+subprojects {
+    if (name == "capacitor-community-http") {
+        afterEvaluate {
+            if (project.hasProperty("android")) {
+                android {
+                    namespace "com.getcapacitor.http.http"
+                }
+            }
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
