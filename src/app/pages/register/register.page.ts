@@ -78,6 +78,9 @@ export class RegisterPage {
         this.loading = false;
         // Hiển thị lỗi chi tiết từ backend
         let errorMessage = 'Đăng ký thất bại';
+        if (error.status === 0) {
+          errorMessage = 'Không kết nối được server. Kiểm tra IP/WiFi hoặc HTTP bị chặn.';
+        }
         if (error.error?.errors && error.error.errors.length > 0) {
           errorMessage = error.error.errors[0].msg;
         } else if (error.error?.message) {

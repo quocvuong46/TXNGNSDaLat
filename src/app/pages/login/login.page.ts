@@ -52,7 +52,13 @@ export class LoginPage {
       },
       error: async (error) => {
         this.loading = false;
-        await this.showToast(error.error?.message || 'Đăng nhập thất bại');
+        let errorMessage = 'Đăng nhập thất bại';
+        if (error.status === 0) {
+          errorMessage = 'Không kết nối được server. Kiểm tra IP/WiFi hoặc HTTP bị chặn.';
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+        await this.showToast(errorMessage);
       }
     });
   }
