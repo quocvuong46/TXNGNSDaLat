@@ -1,20 +1,105 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+<ion-header>
+  <ion-toolbar color="success">
+    <ion-title>Nông sản Đà Lạt</ion-title>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-icon name="notifications-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="home-content">
+  <!-- Search Bar -->
+  <div class="search-section">
+    <ion-searchbar 
+      [(ngModel)]="searchKeyword"
+      placeholder="Tìm kiếm sản phẩm, nông trại..."
+      (ionInput)="onSearch()"
+      animated="true">
+    </ion-searchbar>
+  </div>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <!-- QR Scanner Card -->
+  <div class="qr-card" (click)="goToScanQR()">
+    <div class="qr-icon">
+      <ion-icon name="qr-code"></ion-icon>
+    </div>
+    <div class="qr-content">
+      <h3>Quét mã QR</h3>
+      <p>Quét mã QR trên sản phẩm để xem thông tin chi tiết</p>
+    </div>
+    <ion-icon name="chevron-forward" class="arrow"></ion-icon>
+  </div>
+
+  <!-- Features Section -->
+  <div class="features-section">
+    <h2 class="section-title">Tính năng</h2>
+    
+    <ion-list class="feature-list">
+      <ion-item button lines="full">
+        <div class="feature-icon blue">
+          <ion-icon name="shield-checkmark"></ion-icon>
+        </div>
+        <ion-label>
+          <h3>Xác thực nguồn gốc</h3>
+          <p>Kiểm tra chứng nhận và nguồn gốc sản phẩm</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+      </ion-item>
+
+      <ion-item button lines="full">
+        <div class="feature-icon orange">
+          <ion-icon name="location"></ion-icon>
+        </div>
+        <ion-label>
+          <h3>Vị trí nông trại</h3>
+          <p>Xem vị trí và thông tin nông trại</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+      </ion-item>
+
+      <ion-item button lines="none">
+        <div class="feature-icon green">
+          <ion-icon name="calendar"></ion-icon>
+        </div>
+        <ion-label>
+          <h3>Lịch sử canh tác</h3>
+          <p>Theo dõi quá trình chăm sóc và thu hoạch</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <!-- Recent Products -->
+  <div class="products-section">
+    <h2 class="section-title">Sản phẩm gần đây</h2>
+    <p class="empty-text">Nhập từ khóa để tìm kiếm</p>
   </div>
 </ion-content>
+
+<!-- Bottom Tab Bar -->
+<ion-tab-bar slot="bottom" color="light">
+  <ion-tab-button tab="home">
+    <ion-icon name="home"></ion-icon>
+    <ion-label>Trang chủ</ion-label>
+  </ion-tab-button>
+
+  <ion-tab-button tab="search">
+    <ion-icon name="search"></ion-icon>
+    <ion-label>Tìm kiếm</ion-label>
+  </ion-tab-button>
+
+  <ion-tab-button (click)="goToScanQR()" class="scan-tab">
+    <div class="scan-button">
+      <ion-icon name="qr-code"></ion-icon>
+    </div>
+    <ion-label>Quét</ion-label>
+  </ion-tab-button>
+
+  <ion-tab-button tab="profile" routerLink="/profile">
+    <ion-icon name="person"></ion-icon>
+    <ion-label>Tài khoản</ion-label>
+  </ion-tab-button>
+</ion-tab-bar>

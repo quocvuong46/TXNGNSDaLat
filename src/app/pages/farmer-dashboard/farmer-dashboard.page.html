@@ -1,0 +1,108 @@
+<ion-header>
+  <ion-toolbar color="success">
+    <ion-title>Nông sản Đà Lạt</ion-title>
+    <ion-buttons slot="end">
+      <ion-button>
+        <ion-icon name="notifications-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="farmer-content">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Statistics Cards -->
+  <div class="stats-section">
+    <div class="stat-card blue">
+      <div class="stat-icon">
+        <ion-icon name="cube"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <h3>{{ stats.totalProducts }}</h3>
+        <p>Sản phẩm</p>
+      </div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">
+        <ion-icon name="eye"></ion-icon>
+      </div>
+      <div class="stat-info">
+        <h3>{{ stats.totalScans }}</h3>
+        <p>Đã bán</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Product Button -->
+  <div class="add-product-section">
+    <ion-button expand="block" class="add-btn" (click)="goToAddProduct()">
+      <ion-icon name="add-circle" slot="start"></ion-icon>
+      Thêm sản phẩm mới
+    </ion-button>
+  </div>
+
+  <!-- Products List -->
+  <div class="products-container">
+    <h2 class="section-title">Sản phẩm của tôi</h2>
+    
+    <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+
+    <div *ngIf="!loading && products.length === 0" class="empty-state">
+      <ion-icon name="leaf"></ion-icon>
+      <p>Chưa có sản phẩm nào</p>
+      <ion-button fill="outline" (click)="goToAddProduct()">
+        Thêm sản phẩm đầu tiên
+      </ion-button>
+    </div>
+
+    <div class="product-list" *ngIf="!loading && products.length > 0">
+      <div class="product-item" *ngFor="let product of products" (click)="goToProductDetail(product.id)">
+        <img [src]="getImageUrl(product.image_url)" [alt]="product.name" />
+        <div class="product-info">
+          <h3>{{ product.name }}</h3>
+          <p class="price">{{ product.price | number }} đ</p>
+          <div class="product-meta">
+            <span class="quantity">{{ product.quantity }} {{ product.unit }}</span>
+            <span class="status" [class.in-stock]="product.quantity > 0" [class.out-of-stock]="product.quantity === 0">
+              {{ product.quantity > 0 ? 'Còn hàng' : 'Hết hàng' }}
+            </span>
+          </div>
+        </div>
+        <div class="product-actions">
+          <ion-button fill="clear" class="delete-btn" (click)="confirmDelete(product, $event)">
+            <ion-icon name="trash" slot="icon-only"></ion-icon>
+          </ion-button>
+          <ion-icon name="chevron-forward" class="arrow"></ion-icon>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Bottom Tab Bar -->
+<ion-tab-bar slot="bottom" color="light">
+  <ion-tab-button tab="home" routerLink="/farmer-dashboard">
+    <ion-icon name="home"></ion-icon>
+    <ion-label>Trang chủ</ion-label>
+  </ion-tab-button>
+
+  <ion-tab-button tab="search">
+    <ion-icon name="search"></ion-icon>
+    <ion-label>Tìm kiếm</ion-label>
+  </ion-tab-button>
+
+  <ion-tab-button (click)="goToAddProduct()" class="add-tab">
+    <div class="add-button">
+      <ion-icon name="add"></ion-icon>
+    </div>
+    <ion-label>Thêm</ion-label>
+  </ion-tab-button>
+
+  <ion-tab-button tab="profile" routerLink="/profile">
+    <ion-icon name="person"></ion-icon>
+    <ion-label>Tài khoản</ion-label>
+  </ion-tab-button>
+</ion-tab-bar>

@@ -1,0 +1,72 @@
+<ion-header>
+  <ion-toolbar color="success">
+    <ion-buttons slot="start">
+      <ion-button routerLink="/home">
+        <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Quét mã QR</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="scan-content">
+  <div class="scan-container">
+    <!-- Camera Scanner Placeholder -->
+    <div class="scanner-area">
+      <div class="scanner-frame" [class.active]="isScanning">
+        <video #video *ngIf="isScanning" autoplay muted playsinline></video>
+        <div class="scan-overlay" *ngIf="isScanning"></div>
+        <div *ngIf="!isScanning" class="scanner-placeholder">
+          <div class="qr-icon-large">
+            <ion-icon name="qr-code"></ion-icon>
+          </div>
+          <p class="scan-text">Đưa mã QR vào khung để quét</p>
+        </div>
+      </div>
+
+      <ion-button *ngIf="!isScanning" expand="block" (click)="startScan()" class="scan-btn">
+        <ion-icon name="qr-code" slot="start"></ion-icon>
+        Bật camera quét mã
+      </ion-button>
+
+      <ion-button *ngIf="isScanning" expand="block" (click)="stopScan()" class="scan-btn stop-btn">
+        <ion-icon name="close-circle" slot="start"></ion-icon>
+        Dừng quét
+      </ion-button>
+    </div>
+
+    <!-- Manual Code Input -->
+    <div class="manual-section">
+      <h3>Hoặc nhập mã thủ công</h3>
+      <div class="input-group">
+        <ion-input 
+          type="text" 
+          placeholder="Nhập mã sản phẩm"
+          [(ngModel)]="manualCode"
+          class="code-input"
+          (keyup.enter)="searchByCode()">
+        </ion-input>
+        <ion-button (click)="searchByCode()" class="search-btn">
+          <ion-icon name="search" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="info-card">
+      <h4>Hướng dẫn sử dụng</h4>
+      <div class="info-item">
+        <ion-icon name="checkmark-circle" color="success"></ion-icon>
+        <p>Đưa mã QR trên bao bì sản phẩm vào khung quét</p>
+      </div>
+      <div class="info-item">
+        <ion-icon name="checkmark-circle" color="success"></ion-icon>
+        <p>Hoặc nhập mã sản phẩm để tra cứu thông tin</p>
+      </div>
+      <div class="info-item">
+        <ion-icon name="checkmark-circle" color="success"></ion-icon>
+        <p>Xem chi tiết nguồn gốc và lịch sử canh tác</p>
+      </div>
+    </div>
+  </div>
+</ion-content>

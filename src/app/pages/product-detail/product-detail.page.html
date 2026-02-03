@@ -1,0 +1,136 @@
+<ion-header>
+  <ion-toolbar color="success">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Chi tiết sản phẩm</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="detail-content">
+  <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+
+  <div *ngIf="!loading && !product" class="error-message">
+    <ion-icon name="alert-circle-outline"></ion-icon>
+    <p>Không tìm thấy sản phẩm</p>
+  </div>
+
+  <div *ngIf="!loading && product" class="product-container">
+    <!-- Product Image -->
+    <div class="product-image">
+      <img [src]="getImageUrl(product.image_url)" [alt]="product.name" />
+      <ion-button class="favorite-btn" fill="clear" (click)="toggleFavorite()">
+        <ion-icon [name]="isFavorite ? 'heart' : 'heart-outline'"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Product Info -->
+    <div class="product-info">
+      <h1>{{ product.name }}</h1>
+      <p class="price">{{ product.price | number }}đ / {{ product.unit }}</p>
+      <ion-chip [color]="product.quantity > 0 ? 'success' : 'danger'">
+        <ion-label>{{ product.quantity > 0 ? 'Còn hàng' : 'Hết hàng' }}</ion-label>
+      </ion-chip>
+    </div>
+
+    <!-- Description -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Mô tả sản phẩm</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        {{ product.description || 'Không có mô tả' }}
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Origin Info -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Thông tin xuất xứ</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="info-row">
+          <ion-icon name="location-outline"></ion-icon>
+          <div>
+            <strong>Nguồn gốc:</strong>
+            <p>{{ product.origin }}</p>
+          </div>
+        </div>
+        <div class="info-row">
+          <ion-icon name="calendar"></ion-icon>
+          <div>
+            <strong>Ngày thu hoạch:</strong>
+            <p>{{ product.harvest_date | date:'dd/MM/yyyy' }}</p>
+          </div>
+        </div>
+        <div class="info-row" *ngIf="product.farmer">
+          <ion-icon name="leaf"></ion-icon>
+          <div>
+            <strong>Nông trại:</strong>
+            <p>{{ product.farmer.farm_name }}</p>
+            <p class="sub-info">{{ product.farmer.location }}</p>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- QR Code -->
+    <ion-card class="qr-card">
+      <ion-card-header>
+        <ion-card-title>Mã QR truy xuất nguồn gốc</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="qr-container">
+          <div class="qr-image-wrapper" #qrWrapper>
+            <img [src]="getQRCodeUrl()" alt="QR Code" *ngIf="product.qr_code_url" />
+          </div>
+          <p class="product-code">Mã sản phẩm: <strong>{{ product.product_code }}</strong></p>
+          
+          <!-- QR Actions -->
+          <div class="qr-actions">
+            <ion-button expand="block" color="success" (click)="copyQRCode()">
+              <ion-icon name="copy" slot="start"></ion-icon>
+              Sao chép mã QR
+            </ion-button>
+            
+            <ion-button expand="block" color="primary" (click)="printQRCode()">
+              <ion-icon name="print" slot="start"></ion-icon>
+              In mã QR
+            </ion-button>
+            
+            <ion-button expand="block" fill="outline" color="medium" (click)="downloadQRCode()">
+              <ion-icon name="download" slot="start"></ion-icon>
+              Tải về
+            </ion-button>
+          </div>
+
+          <div class="qr-note">
+            <ion-icon name="information-circle"></ion-icon>
+            <p>In mã QR này và dán lên bao bì sản phẩm để khách hàng có thể quét và truy xuất nguồn gốc</p>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Farming History -->
+    <ion-card *ngIf="product.farming_history && product.farming_history.length > 0">
+      <ion-card-header>
+        <ion-card-title>Lịch sử canh tác</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="timeline">
+          <div class="timeline-item" *ngFor="let history of product.farming_history">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <p class="timeline-date">{{ history.date | date:'dd/MM/yyyy' }}</p>
+              <p class="timeline-action">{{ history.action_type }}</p>
+              <p class="timeline-desc">{{ history.description }}</p>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

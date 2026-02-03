@@ -1,0 +1,90 @@
+.register-content {
+  --background: #f5f5f5;
+}
+
+.register-container {
+  padding: 20px;
+}
+
+.header {
+  text-align: center;
+  margin: 30px 0;
+  position: relative;
+
+  .back-btn {
+    position: absolute;
+    left: 0;
+    top: 0;
+    --color: #22c55e;
+  }
+
+  h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin: 10px 0;
+  }
+
+  p {
+    color: #22c55e;
+    font-size: 16px;
+  }
+}
+
+.input-item {
+  --background: white;
+  --border-radius: 12px;
+  margin-bottom: 15px;
+  --padding-start: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+  ion-icon {
+    color: #22c55e;
+    font-size: 20px;
+    margin-right: 10px;
+  }
+
+  ion-input, ion-select {
+    --color: #333;
+    --placeholder-color: #999;
+    --placeholder-opacity: 1;
+    font-size: 16px;
+  }
+
+  ion-select {
+    --placeholder-color: #999;
+    color: #333;
+  }
+}
+
+// Style cho dropdown popover
+ion-select-option {
+  --color: #333 !important;
+  color: #333 !important;
+}
+
+.select-interface-option {
+  color: #333 !important;
+}
+
+.register-btn {
+  --background: #22c55e;
+  --border-radius: 12px;
+  font-weight: bold;
+  height: 50px;
+  margin-top: 20px;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  
+  p {
+    color: #666;
+    
+    a {
+      color: #22c55e;
+      font-weight: bold;
+    }
+  }
+}

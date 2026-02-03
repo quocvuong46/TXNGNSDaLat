@@ -1,0 +1,144 @@
+<ion-header>
+  <ion-toolbar color="success">
+    <ion-title>Tài khoản</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="profile-content">
+  <!-- User Info Card -->
+  <div class="user-card" *ngIf="user">
+    <div class="user-avatar">
+      <ion-icon name="person"></ion-icon>
+    </div>
+    <h2>{{ user.full_name }}</h2>
+    <p class="email">{{ user.email }}</p>
+    <div class="user-badge" [class.farmer]="user.role === 'farmer'" [class.customer]="user.role === 'customer'">
+      {{ user.role === 'farmer' ? 'Nông dân' : 'Khách hàng' }}
+    </div>
+  </div>
+
+  <!-- Menu List -->
+  <div class="menu-section">
+    <ion-list class="menu-list">
+      <ion-item button detail lines="full">
+        <div class="menu-icon blue">
+          <ion-icon name="person"></ion-icon>
+        </div>
+        <ion-label>
+          <h3>Thông tin nông trại</h3>
+          <p *ngIf="user?.role === 'farmer'">Nông trại Hoa Lan</p>
+          <p *ngIf="user?.role === 'customer'">Xem và chỉnh sửa thông tin</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+      </ion-item>
+
+      <ion-item button detail lines="full" *ngIf="user?.role === 'customer'">
+        <div class="menu-icon red">
+          <ion-icon name="heart"></ion-icon>
+        </div>
+        <ion-label>
+          <h3>Sản phẩm yêu thích</h3>
+          <p>Danh sách sản phẩm đã lưu</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+      </ion-item>
+
+      <ion-item button detail lines="full" *ngIf="user?.role === 'customer'">
+        <div class="menu-icon purple">
+          <ion-icon name="time"></ion-icon>
+        </div>
+        <ion-label>
+          <h3>Lịch sử quét</h3>
+          <p>Các sản phẩm đã tra cứu</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+      </ion-item>
+
+      <ion-item button detail lines="full">
+        <div class="menu-icon orange">
+          <ion-icon name="settings"></ion-icon>
+        </div>
+        <ion-label>
+          <h3>Cài đặt</h3>
+          <p>Tùy chỉnh ứng dụng</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+      </ion-item>
+
+      <ion-item button detail lines="full">
+        <div class="menu-icon green">
+          <ion-icon name="help-circle"></ion-icon>
+        </div>
+        <ion-label>
+          <h3>Hỗ trợ</h3>
+          <p>Liên hệ và trợ giúp</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
+      </ion-item>
+    </ion-list>
+  </div>
+
+  <!-- Logout Button -->
+  <div class="logout-section">
+    <ion-button expand="block" fill="outline" color="danger" (click)="confirmLogout()">
+      <ion-icon name="log-out" slot="start"></ion-icon>
+      Đăng xuất
+    </ion-button>
+  </div>
+
+  <!-- App Info -->
+  <div class="app-info">
+    <p class="version">Phiên bản 1.0.0</p>
+    <p class="copyright">Hệ thống truy xuất nguồn gốc<br>Nông sản Đà Lạt</p>
+  </div>
+</ion-content>
+
+<!-- Bottom Tab Bar for Customer -->
+<ion-tab-bar slot="bottom" color="light" *ngIf="user?.role === 'customer'">
+  <ion-tab-button routerLink="/home">
+    <ion-icon name="home"></ion-icon>
+    <ion-label>Trang chủ</ion-label>
+  </ion-tab-button>
+
+  <ion-tab-button>
+    <ion-icon name="search"></ion-icon>
+    <ion-label>Tìm kiếm</ion-label>
+  </ion-tab-button>
+
+  <ion-tab-button routerLink="/scan-qr" class="scan-tab">
+    <div class="scan-button">
+      <ion-icon name="qr-code"></ion-icon>
+    </div>
+    <ion-label>Quét</ion-label>
+  </ion-tab-button>
+
+  <ion-tab-button tab="profile" class="tab-selected">
+    <ion-icon name="person"></ion-icon>
+    <ion-label>Tài khoản</ion-label>
+  </ion-tab-button>
+</ion-tab-bar>
+
+<!-- Bottom Tab Bar for Farmer -->
+<ion-tab-bar slot="bottom" color="light" *ngIf="user?.role === 'farmer'">
+  <ion-tab-button routerLink="/farmer-dashboard">
+    <ion-icon name="home"></ion-icon>
+    <ion-label>Trang chủ</ion-label>
+  </ion-tab-button>
+
+  <ion-tab-button>
+    <ion-icon name="search"></ion-icon>
+    <ion-label>Tìm kiếm</ion-label>
+  </ion-tab-button>
+
+  <ion-tab-button routerLink="/add-product" class="add-tab">
+    <div class="add-button">
+      <ion-icon name="add"></ion-icon>
+    </div>
+    <ion-label>Thêm</ion-label>
+  </ion-tab-button>
+
+  <ion-tab-button tab="profile" class="tab-selected">
+    <ion-icon name="person"></ion-icon>
+    <ion-label>Tài khoản</ion-label>
+  </ion-tab-button>
+</ion-tab-bar>
