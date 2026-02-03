@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:3000/api/products';
+  private apiUrl = 'http://192.168.1.200:3000/api/products';
 
   constructor(
     private http: HttpClient,
@@ -66,7 +66,7 @@ export class ProductService {
 
   getCategories(): Observable<ApiResponse<any[]>> {
     return this.http.get<ApiResponse<any[]>>(
-      'http://localhost:3000/api/categories'
+      'http://192.168.1.200:3000/api/categories'
     );
   }
 
