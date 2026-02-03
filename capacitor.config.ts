@@ -5,7 +5,8 @@ const config: CapacitorConfig = {
   appName: 'traceability',
   webDir: 'www',
   server: {
-    cleartext: true
+    cleartext: true,
+    allowNavigation: ['192.168.1.200', 'http://192.168.1.200:3000']
   }
 };
 
