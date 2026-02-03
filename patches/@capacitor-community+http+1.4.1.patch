@@ -1,0 +1,10 @@
+diff --git a/node_modules/@capacitor-community/http/android/build.gradle b/node_modules/@capacitor-community/http/android/build.gradle
+--- a/node_modules/@capacitor-community/http/android/build.gradle
++++ b/node_modules/@capacitor-community/http/android/build.gradle
+@@
+-android {
++android {
++    namespace "com.getcapacitor.http.http"
+     compileSdkVersion project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 29
+     defaultConfig {
+         minSdkVersion project.hasProperty('minSdkVersion') ? rootProject.ext.minSdkVersion : 21
