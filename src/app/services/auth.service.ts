@@ -120,7 +120,9 @@ export class AuthService {
   ping(): Observable<ApiResponse<any>> {
     if (Capacitor.isNativePlatform()) {
       return from(Http.get({
-        url: this.apiUrl
+        url: this.apiUrl,
+        params: {},
+        headers: { 'Content-Type': 'application/json' }
       })).pipe(
         map(result => result.data as ApiResponse<any>),
         catchError((err) => {
