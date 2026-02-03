@@ -1,8 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, from, map, catchError, throwError } from 'rxjs';
 import { ApiResponse, Product } from '../models/interfaces';
 import { AuthService } from './auth.service';
+import { Capacitor } from '@capacitor/core';
+import { Http } from '@capacitor-community/http';
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +24,35 @@ export class ProductService {
     });
   }
 
+  private getNativeHeaders(): { [key: string]: string } {
+    const token = this.authService.getToken();
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    };
+  }
+
+  private handleNativeError(error: any) {
+    const normalized = {
+      status: error?.status ?? 0,
+      message: error?.message ?? 'Native HTTP error',
+      error
+    };
+    return throwError(() => normalized);
+  }
+
   getMyProducts(): Observable<ApiResponse<Product[]>> {
+    if (Capacitor.isNativePlatform()) {
+      return from(Http.get({
+        url: `${this.apiUrl}/my-products`,
+        headers: this.getNativeHeaders(),
+        params: {}
+      })).pipe(
+        map(result => result.data as ApiResponse<Product[]>),
+        catchError((error) => this.handleNativeError(error))
+      );
+    }
+
     return this.http.get<ApiResponse<Product[]>>(
       `${this.apiUrl}/my-products`,
       { headers: this.getHeaders() }
@@ -53,18 +83,51 @@ export class ProductService {
   }
 
   traceProduct(productCode: string): Observable<ApiResponse<any>> {
+    if (Capacitor.isNativePlatform()) {
+      return from(Http.get({
+        url: `${this.apiUrl}/trace/${productCode}`,
+        headers: this.getNativeHeaders(),
+        params: {}
+      })).pipe(
+        map(result => result.data as ApiResponse<any>),
+        catchError((error) => this.handleNativeError(error))
+      );
+    }
+
     return this.http.get<ApiResponse<any>>(
       `${this.apiUrl}/trace/${productCode}`
     );
   }
 
   searchProducts(keyword: string): Observable<ApiResponse<Product[]>> {
+    if (Capacitor.isNativePlatform()) {
+      return from(Http.get({
+        url: `${this.apiUrl}/search`,
+        headers: this.getNativeHeaders(),
+        params: { keyword }
+      })).pipe(
+        map(result => result.data as ApiResponse<Product[]>),
+        catchError((error) => this.handleNativeError(error))
+      );
+    }
+
     return this.http.get<ApiResponse<Product[]>>(
       `${this.apiUrl}/search?keyword=${keyword}`
     );
   }
 
   getCategories(): Observable<ApiResponse<any[]>> {
+    if (Capacitor.isNativePlatform()) {
+      return from(Http.get({
+        url: 'http://192.168.1.200:3000/api/categories',
+        headers: this.getNativeHeaders(),
+        params: {}
+      })).pipe(
+        map(result => result.data as ApiResponse<any[]>),
+        catchError((error) => this.handleNativeError(error))
+      );
+    }
+
     return this.http.get<ApiResponse<any[]>>(
       'http://192.168.1.200:3000/api/categories'
     );
@@ -79,6 +142,17 @@ export class ProductService {
   }
 
   getProductById(id: number): Observable<ApiResponse<any>> {
+    if (Capacitor.isNativePlatform()) {
+      return from(Http.get({
+        url: `${this.apiUrl}/${id}`,
+        headers: this.getNativeHeaders(),
+        params: {}
+      })).pipe(
+        map(result => result.data as ApiResponse<any>),
+        catchError((error) => this.handleNativeError(error))
+      );
+    }
+
     return this.http.get<ApiResponse<any>>(
       `${this.apiUrl}/${id}`,
       { headers: this.getHeaders() }
