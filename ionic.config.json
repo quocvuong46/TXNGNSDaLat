@@ -1,0 +1,7 @@
+{
+  "name": "traceability",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
