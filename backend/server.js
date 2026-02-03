@@ -21,6 +21,15 @@ app.get('/', (req, res) => {
   });
 });
 
+// API health route
+app.get('/api', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Traceability API is running',
+    version: '1.0.0'
+  });
+});
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/products', require('./routes/products'));
