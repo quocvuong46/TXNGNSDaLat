@@ -1,0 +1,27 @@
+flowchart TB
+  subgraph Clients["Người dùng"]
+    A["Mobile App (Ionic/Angular)"]
+    B["Web App (Angular)"]
+  end
+
+  subgraph Backend["Backend API (Node.js + Express)"]
+    C["Auth Service (JWT)"]
+    D["Product Service"]
+    E["QR Generator"]
+    F["Upload Service (Multer)"]
+  end
+
+  subgraph Storage["Hệ thống lưu trữ"]
+    G[("MySQL Database")]
+    H[("Uploads Folder: Images & QR")]
+  end
+
+  A -->|"HTTP/JSON"| C
+  A -->|"HTTP/JSON"| D
+  B -->|"HTTP/JSON"| C
+  B -->|"HTTP/JSON"| D
+
+  D --> G
+  C --> G
+  D --> E --> H
+  D --> F --> H
