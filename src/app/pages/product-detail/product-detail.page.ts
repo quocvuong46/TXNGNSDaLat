@@ -11,6 +11,7 @@ import {
 import { addIcons } from 'ionicons';
 import { arrowBack, locationOutline, calendar, leaf, heart, heartOutline, share, copy, print, download, informationCircle, alertCircleOutline } from 'ionicons/icons';
 import { ProductService } from '../../services/product.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -29,7 +30,7 @@ export class ProductDetailPage implements OnInit {
   product: any = null;
   loading = true;
   isFavorite = false;
-  private readonly assetBaseUrl = 'http://192.168.1.200:3000';
+  private assetBaseUrl = '';
 
   constructor(
     private productService: ProductService,
@@ -37,9 +38,12 @@ export class ProductDetailPage implements OnInit {
     public router: Router,
     private location: Location,
     private toastController: ToastController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private authService: AuthService
   ) {
     addIcons({ arrowBack, locationOutline, calendar, leaf, heart, heartOutline, share, copy, print, download, informationCircle, alertCircleOutline });
+    const apiBase = this.authService.getApiUrl();
+    this.assetBaseUrl = apiBase.replace(/\/api\/?$/, '');
   }
 
   ngOnInit() {

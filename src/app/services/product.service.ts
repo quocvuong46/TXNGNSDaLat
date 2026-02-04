@@ -59,12 +59,8 @@ export class ProductService {
     );
   }
 
-  addProduct(formData: FormData): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(
-      this.apiUrl,
-      formData,
-      { headers: this.getHeaders() }
-    );
+  addProduct(formData: FormData | Record<string, any>): Observable<ApiResponse<any>> {
+    return this.createProduct(formData);
   }
 
   updateProduct(id: number, formData: FormData): Observable<ApiResponse<any>> {
@@ -133,7 +129,18 @@ export class ProductService {
     );
   }
 
-  createProduct(formData: FormData): Observable<ApiResponse<any>> {
+  createProduct(formData: FormData | Record<string, any>): Observable<ApiResponse<any>> {
+    if (Capacitor.isNativePlatform() && !(formData instanceof FormData)) {
+      return from(Http.post({
+        url: this.apiUrl,
+        headers: this.getNativeHeaders(),
+        data: formData
+      })).pipe(
+        map(result => result.data as ApiResponse<any>),
+        catchError((error) => this.handleNativeError(error))
+      );
+    }
+
     return this.http.post<ApiResponse<any>>(
       this.apiUrl,
       formData,

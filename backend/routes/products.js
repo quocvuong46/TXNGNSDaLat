@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const QRCode = require('qrcode');
+const fs = require('fs');
+const path = require('path');
 const db = require('../config/database');
 const { authMiddleware, roleMiddleware } = require('../middleware/auth');
 const upload = require('../middleware/upload');
@@ -66,7 +68,42 @@ router.post('/', authMiddleware, roleMiddleware('farmer'), upload.single('image'
     const product_code = `DL${Date.now()}${Math.floor(Math.random() * 1000)}`;
 
     // Upload image URL
-    const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+    let image_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+    if (!image_url && req.body.image_base64) {
+      try {
+        const uploadDir = path.join(__dirname, '..', 'uploads');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+
+        const base64Input = req.body.image_base64;
+        const imageName = req.body.image_name || `product_${Date.now()}.png`;
+        const dataMatch = base64Input.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+        const base64Data = dataMatch ? dataMatch[2] : base64Input;
+        let extension = path.extname(imageName);
+
+        if (!extension && dataMatch) {
+          const mimeParts = dataMatch[1].split('/');
+          extension = mimeParts[1] ? `.${mimeParts[1]}` : '.png';
+        }
+
+        if (!extension) {
+          extension = '.png';
+        }
+
+        const fileName = `base64_${Date.now()}_${Math.round(Math.random() * 1e9)}${extension}`;
+        const filePath = path.join(uploadDir, fileName);
+        fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+        image_url = `/uploads/${fileName}`;
+      } catch (err) {
+        console.error('Base64 image error:', err);
+        return res.status(400).json({
+          success: false,
+          message: 'Ảnh tải lên không hợp lệ'
+        });
+      }
+    }
 
     // Insert product
     const [result] = await db.query(

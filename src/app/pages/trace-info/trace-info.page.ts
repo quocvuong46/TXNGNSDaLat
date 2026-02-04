@@ -12,6 +12,7 @@ import {
   person, informationCircle, qrCode, pricetag, cube, ribbon, checkmarkCircle
 } from 'ionicons/icons';
 import { ProductService } from '../../services/product.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-trace-info',
@@ -30,17 +31,20 @@ export class TraceInfoPage implements OnInit {
   product: any = null;
   history: any[] = [];
   productCode = '';
-  private readonly assetBaseUrl = 'http://192.168.1.200:3000';
+  private assetBaseUrl = '';
 
   constructor(
     private productService: ProductService,
     private route: ActivatedRoute,
-    public router: Router
+    public router: Router,
+    private authService: AuthService
   ) {
     addIcons({
       arrowBack, leaf, locationOutline, calendar, call,
       person, informationCircle, qrCode, pricetag, cube, ribbon, checkmarkCircle
     });
+    const apiBase = this.authService.getApiUrl();
+    this.assetBaseUrl = apiBase.replace(/\/api\/?$/, '');
   }
 
   ngOnInit() {

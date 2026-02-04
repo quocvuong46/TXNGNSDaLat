@@ -10,6 +10,7 @@ import {
 import { addIcons } from 'ionicons';
 import { arrowBack, cloudUpload, save } from 'ionicons/icons';
 import { ProductService } from '../../services/product.service';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-add-product',
@@ -37,6 +38,7 @@ export class AddProductPage implements OnInit {
   categories: any[] = [];
   selectedImage: File | null = null;
   imagePreview: string | null = null;
+  imageFileName: string | null = null;
   loading = false;
 
   constructor(
@@ -68,6 +70,7 @@ export class AddProductPage implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.selectedImage = file;
+      this.imageFileName = file.name;
       const reader = new FileReader();
       reader.onload = (e: any) => {
         this.imagePreview = e.target.result;
@@ -83,6 +86,39 @@ export class AddProductPage implements OnInit {
     }
 
     this.loading = true;
+    if (Capacitor.isNativePlatform()) {
+      const payload: Record<string, any> = {
+        name: this.productData.name,
+        description: this.productData.description,
+        category_id: this.productData.category_id,
+        price: this.productData.price,
+        quantity: this.productData.quantity || 0,
+        unit: this.productData.unit,
+        origin: this.productData.origin,
+        harvest_date: this.productData.harvest_date
+      };
+
+      if (this.imagePreview) {
+        payload['image_base64'] = this.imagePreview;
+        payload['image_name'] = this.imageFileName || 'product-image.png';
+      }
+
+      this.productService.createProduct(payload).subscribe({
+        next: async (response) => {
+          this.loading = false;
+          if (response.success) {
+            await this.showToast('Thêm sản phẩm thành công!');
+            this.router.navigate(['/farmer-dashboard']);
+          }
+        },
+        error: async (error) => {
+          this.loading = false;
+          await this.showToast(error.error?.message || error.message || 'Có lỗi xảy ra');
+        }
+      });
+      return;
+    }
+
     const formData = new FormData();
     formData.append('name', this.productData.name);
     formData.append('description', this.productData.description);
