@@ -130,17 +130,6 @@ export class ProductService {
   }
 
   createProduct(formData: FormData | Record<string, any>): Observable<ApiResponse<any>> {
-    if (Capacitor.isNativePlatform() && !(formData instanceof FormData)) {
-      return from(Http.post({
-        url: this.apiUrl,
-        headers: this.getNativeHeaders(),
-        data: formData
-      })).pipe(
-        map(result => result.data as ApiResponse<any>),
-        catchError((error) => this.handleNativeError(error))
-      );
-    }
-
     return this.http.post<ApiResponse<any>>(
       this.apiUrl,
       formData,
