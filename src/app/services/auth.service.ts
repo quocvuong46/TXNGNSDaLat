@@ -9,7 +9,7 @@ import { Http } from '@capacitor-community/http';
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://192.168.1.200:3000/api';
+  private apiUrl = 'http://10.61.148.125:3000/api';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 

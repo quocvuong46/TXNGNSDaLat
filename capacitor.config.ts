@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'www',
   server: {
     cleartext: true,
-    allowNavigation: ['192.168.1.200', 'http://192.168.1.200:3000']
+    allowNavigation: ['10.61.148.125', 'http://10.61.148.125:3000']
   }
 };
 

@@ -10,7 +10,7 @@ import { Http } from '@capacitor-community/http';
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'http://192.168.1.200:3000/api/products';
+  private apiUrl = 'http://10.61.148.125:3000/api/products';
 
   constructor(
     private http: HttpClient,
@@ -115,7 +115,7 @@ export class ProductService {
   getCategories(): Observable<ApiResponse<any[]>> {
     if (Capacitor.isNativePlatform()) {
       return from(Http.get({
-        url: 'http://192.168.1.200:3000/api/categories',
+  url: 'http://10.61.148.125:3000/api/categories',
         headers: this.getNativeHeaders(),
         params: {}
       })).pipe(
@@ -125,7 +125,7 @@ export class ProductService {
     }
 
     return this.http.get<ApiResponse<any[]>>(
-      'http://192.168.1.200:3000/api/categories'
+  'http://10.61.148.125:3000/api/categories'
     );
   }
 
