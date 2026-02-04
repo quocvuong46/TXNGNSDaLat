@@ -12,6 +12,7 @@ import {
 import { addIcons } from 'ionicons';
 import { add, qrCode, leaf, eye, arrowBack, cube, addCircle, chevronForward, home, search, person, notifications, notificationsOutline, trash } from 'ionicons/icons';
 import { ProductService } from '../../services/product.service';
+import { AuthService } from '../../services/auth.service';
 import { Product } from '../../models/interfaces';
 
 @Component({
@@ -39,7 +40,8 @@ export class FarmerDashboardPage implements OnInit {
     private productService: ProductService,
     public router: Router,
     private toastController: ToastController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private authService: AuthService
   ) {
     addIcons({ add, qrCode, leaf, eye, arrowBack, cube, addCircle, chevronForward, home, search, person, notifications, notificationsOutline, trash });
   }
@@ -131,7 +133,10 @@ export class FarmerDashboardPage implements OnInit {
     if (imageUrl.startsWith('http')) {
       return imageUrl;
     }
-    return `http://localhost:3000${imageUrl}`;
+    // Build absolute URL from API base (remove /api if present)
+    const apiBase = this.authService.getApiUrl();
+    const assetBase = apiBase.replace(/\/api\/?$/, '');
+    return `${assetBase}${imageUrl}`;
   }
 
   handleRefresh(event: any) {

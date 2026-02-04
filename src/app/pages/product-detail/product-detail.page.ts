@@ -29,6 +29,7 @@ export class ProductDetailPage implements OnInit {
   product: any = null;
   loading = true;
   isFavorite = false;
+  private readonly assetBaseUrl = 'http://192.168.1.200:3000';
 
   constructor(
     private productService: ProductService,
@@ -86,7 +87,7 @@ export class ProductDetailPage implements OnInit {
     if (this.product.qr_code_url.startsWith('http')) {
       return this.product.qr_code_url;
     }
-    return `http://localhost:3000${this.product.qr_code_url}`;
+    return `${this.assetBaseUrl}${this.product.qr_code_url}`;
   }
 
   getImageUrl(imageUrl?: string | null): string {
@@ -96,7 +97,7 @@ export class ProductDetailPage implements OnInit {
     if (imageUrl.startsWith('http')) {
       return imageUrl;
     }
-    return `http://localhost:3000${imageUrl}`;
+    return `${this.assetBaseUrl}${imageUrl}`;
   }
 
   async copyQRCode() {
