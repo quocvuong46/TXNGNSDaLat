@@ -3,7 +3,16 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  firebase: {
+    apiKey: 'AIzaSyC1VYcVwoYS1fSQy0AjtHVti5oRaqiWkNg',
+    authDomain: 'traceability-d2da8.firebaseapp.com',
+    projectId: 'traceability-d2da8',
+    storageBucket: 'traceability-d2da8.firebasestorage.app',
+    messagingSenderId: '917076566370',
+    appId: '1:917076566370:web:eaa665d832c852cf810c3b',
+    measurementId: 'G-5L5R9W9PFL'
+  }
 };
 
 /*

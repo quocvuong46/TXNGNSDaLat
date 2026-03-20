@@ -1,23 +1,46 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap, from, map, catchError, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, from, switchMap, map, catchError, throwError, of } from 'rxjs';
 import { ApiResponse, LoginRequest, RegisterRequest, User } from '../models/interfaces';
-import { Capacitor } from '@capacitor/core';
-import { Http } from '@capacitor-community/http';
+import {
+  Auth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  User as FirebaseUser,
+  updateProfile
+} from '@angular/fire/auth';
+import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://10.61.148.125:3000/api';
+  private apiUrl = 'Firebase';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    this.loadUserFromStorage();
+  constructor(
+    private auth: Auth,
+    private firestore: Firestore
+  ) {
+    this.restoreFromStorage();
+    this.listenAuthChanges();
   }
 
-  private loadUserFromStorage() {
+  private listenAuthChanges() {
+    onAuthStateChanged(this.auth, async (fbUser) => {
+      if (fbUser) {
+        const session = await this.buildSessionFromFirebaseUser(fbUser);
+        this.persistSession(session.token, session.user);
+        this.currentUserSubject.next(session.user);
+      } else {
+        this.clearSession();
+      }
+    });
+  }
+
+  private restoreFromStorage() {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
     if (token && user) {
@@ -25,77 +48,107 @@ export class AuthService {
     }
   }
 
-  login(credentials: LoginRequest): Observable<ApiResponse<{ token: string; user: User }>> {
-    if (Capacitor.isNativePlatform()) {
-      return from(Http.post({
-        url: `${this.apiUrl}/auth/login`,
-        headers: { 'Content-Type': 'application/json' },
-        params: {},
-        data: credentials
-      })).pipe(
-        map(result => result.data as ApiResponse<{ token: string; user: User }>),
-        tap(response => {
-          if (response.success && response.data) {
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
-            this.currentUserSubject.next(response.data.user);
-          }
-        }),
-        catchError((err) => {
-          const normalized = {
-            status: err?.status ?? 0,
-            message: err?.message ?? 'Native HTTP error',
-            error: err
-          };
-          return throwError(() => normalized);
-        })
-      );
-    }
-
-    return this.http.post<ApiResponse<{ token: string; user: User }>>(
-      `${this.apiUrl}/auth/login`,
-      credentials
-    ).pipe(
-      tap(response => {
-        if (response.success && response.data) {
-          localStorage.setItem('token', response.data.token);
-          localStorage.setItem('user', JSON.stringify(response.data.user));
-          this.currentUserSubject.next(response.data.user);
-        }
-      })
-    );
-  }
-
-  register(data: RegisterRequest): Observable<ApiResponse<any>> {
-    if (Capacitor.isNativePlatform()) {
-      return from(Http.post({
-        url: `${this.apiUrl}/auth/register`,
-        headers: { 'Content-Type': 'application/json' },
-        params: {},
-        data
-      })).pipe(
-        map(result => result.data as ApiResponse<any>),
-        catchError((err) => {
-          const normalized = {
-            status: err?.status ?? 0,
-            message: err?.message ?? 'Native HTTP error',
-            error: err
-          };
-          return throwError(() => normalized);
-        })
-      );
-    }
-
-    return this.http.post<ApiResponse<any>>(
-      `${this.apiUrl}/auth/register`,
-      data
-    );
-  }
-
-  logout() {
+  private clearSession() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.currentUserSubject.next(null);
+  }
+
+  private async fetchUserProfile(uid: string): Promise<User | null> {
+    try {
+      const snapshot = await getDoc(doc(this.firestore, 'users', uid));
+      if (!snapshot.exists()) return null;
+      return snapshot.data() as User;
+    } catch (err) {
+      // Offline hoặc không truy cập được Firestore: quay về null để dùng fallback user
+      console.warn('fetchUserProfile skipped (offline or error)', err);
+      return null;
+    }
+  }
+
+  private async buildSessionFromFirebaseUser(fbUser: FirebaseUser, fallbackEmail?: string) {
+    let token: string;
+    let profile: User | null;
+    try {
+      [token, profile] = await Promise.all([
+        fbUser.getIdToken(),
+        this.fetchUserProfile(fbUser.uid)
+      ]);
+    } catch (err) {
+      console.warn('buildSessionFromFirebaseUser fallback (offline or error)', err);
+      token = await fbUser.getIdToken();
+      profile = null;
+    }
+
+    const user: User = profile ?? {
+      id: fbUser.uid,
+      email: fbUser.email ?? fallbackEmail ?? '',
+      full_name: fbUser.displayName ?? '',
+      role: 'customer'
+    };
+
+    return { token, user };
+  }
+
+  private persistSession(token: string, user: User) {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  private normalizeError(err: any) {
+    return {
+      status: 0,
+      message: err?.message ?? 'Đã xảy ra lỗi',
+      error: err
+    };
+  }
+
+  login(credentials: LoginRequest): Observable<ApiResponse<{ token: string; user: User }>> {
+    return from(signInWithEmailAndPassword(this.auth, credentials.email, credentials.password)).pipe(
+      switchMap((credential) => from(this.buildSessionFromFirebaseUser(credential.user, credentials.email))),
+      map(({ token, user }) => {
+        this.persistSession(token, user);
+        this.currentUserSubject.next(user);
+        return { success: true, data: { token, user } } satisfies ApiResponse<{ token: string; user: User }>;
+      }),
+      catchError((err) => throwError(() => this.normalizeError(err)))
+    );
+  }
+
+  register(data: RegisterRequest): Observable<ApiResponse<{ user: User }>> {
+    return from(createUserWithEmailAndPassword(this.auth, data.email, data.password)).pipe(
+      switchMap((credential) => {
+        const firebaseUser = credential.user;
+        const profile: User = {
+          id: firebaseUser.uid,
+          email: data.email,
+          full_name: data.full_name,
+          phone: data.phone,
+          role: data.role
+        };
+
+        return from(Promise.all([
+          updateProfile(firebaseUser, { displayName: data.full_name }),
+          setDoc(doc(this.firestore, 'users', firebaseUser.uid), profile),
+          firebaseUser.getIdToken()
+        ])).pipe(
+          map(([, , token]) => {
+            this.persistSession(token, profile);
+            this.currentUserSubject.next(profile);
+            return { success: true, data: { user: profile }, message: 'Đăng ký thành công' } as ApiResponse<{ user: User }>;
+          })
+        );
+      }),
+      catchError((err) => throwError(() => this.normalizeError(err)))
+    );
+  }
+
+  async logout(): Promise<void> {
+    try {
+      await signOut(this.auth);
+    } finally {
+      this.clearSession();
+    }
   }
 
   getToken(): string | null {
@@ -120,24 +173,6 @@ export class AuthService {
   }
 
   ping(): Observable<ApiResponse<any>> {
-    if (Capacitor.isNativePlatform()) {
-      return from(Http.get({
-        url: this.apiUrl,
-        params: {},
-        headers: { 'Content-Type': 'application/json' }
-      })).pipe(
-        map(result => result.data as ApiResponse<any>),
-        catchError((err) => {
-          const normalized = {
-            status: err?.status ?? 0,
-            message: err?.message ?? 'Native HTTP error',
-            error: err
-          };
-          return throwError(() => normalized);
-        })
-      );
-    }
-
-    return this.http.get<ApiResponse<any>>(this.apiUrl);
+    return of({ success: true, message: 'Firebase sẵn sàng' });
   }
 }

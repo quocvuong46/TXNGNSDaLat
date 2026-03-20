@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, from, map, catchError, throwError } from 'rxjs';
-import { ApiResponse, Product } from '../models/interfaces';
+import { Observable, from, map, catchError, throwError, of } from 'rxjs';
+import { ApiResponse, Product, ProductOrigin } from '../models/interfaces';
 import { AuthService } from './auth.service';
 import { Capacitor } from '@capacitor/core';
 import { Http } from '@capacitor-community/http';
+import { findOriginByCode, MOCK_PRODUCT_ORIGINS, searchMockProducts } from './mock-data';
 
 @Injectable({
   providedIn: 'root'
@@ -42,116 +43,58 @@ export class ProductService {
   }
 
   getMyProducts(): Observable<ApiResponse<Product[]>> {
-    if (Capacitor.isNativePlatform()) {
-      return from(Http.get({
-        url: `${this.apiUrl}/my-products`,
-        headers: this.getNativeHeaders(),
-        params: {}
-      })).pipe(
-        map(result => result.data as ApiResponse<Product[]>),
-        catchError((error) => this.handleNativeError(error))
-      );
-    }
-
-    return this.http.get<ApiResponse<Product[]>>(
-      `${this.apiUrl}/my-products`,
-      { headers: this.getHeaders() }
-    );
+    // Tạm dừng backend nông dân: trả về rỗng
+    return of({ success: true, data: [] });
   }
 
   addProduct(formData: FormData | Record<string, any>): Observable<ApiResponse<any>> {
-    return this.createProduct(formData);
+    // Tạm dừng: không thêm sản phẩm, trả success giả
+    return of({ success: true, message: 'Đã tạm dừng tính năng thêm sản phẩm' });
   }
 
   updateProduct(id: number, formData: FormData): Observable<ApiResponse<any>> {
-    return this.http.put<ApiResponse<any>>(
-      `${this.apiUrl}/${id}`,
-      formData,
-      { headers: this.getHeaders() }
-    );
+    return of({ success: false, message: 'Đã tạm dừng tính năng cập nhật sản phẩm' });
   }
 
   deleteProduct(id: number): Observable<ApiResponse<any>> {
-    return this.http.delete<ApiResponse<any>>(
-      `${this.apiUrl}/${id}`,
-      { headers: this.getHeaders() }
-    );
+    return of({ success: false, message: 'Đã tạm dừng tính năng xóa sản phẩm' });
   }
 
   traceProduct(productCode: string): Observable<ApiResponse<any>> {
-    if (Capacitor.isNativePlatform()) {
-      return from(Http.get({
-        url: `${this.apiUrl}/trace/${productCode}`,
-        headers: this.getNativeHeaders(),
-        params: {}
-      })).pipe(
-        map(result => result.data as ApiResponse<any>),
-        catchError((error) => this.handleNativeError(error))
-      );
+    const mock = findOriginByCode(productCode);
+    if (mock) {
+      return of({
+        success: true,
+        data: {
+          product: mock,
+          farming_history: []
+        }
+      } as ApiResponse<any>);
     }
 
-    return this.http.get<ApiResponse<any>>(
-      `${this.apiUrl}/trace/${productCode}`
-    );
+    return of({ success: false, message: 'Không tìm thấy sản phẩm (mock)' });
+  }
+
+  // Lấy chi tiết mock theo mã QR/code
+  getMockProductByCode(code: string): ProductOrigin | null {
+    return findOriginByCode(code);
   }
 
   searchProducts(keyword: string): Observable<ApiResponse<Product[]>> {
-    if (Capacitor.isNativePlatform()) {
-      return from(Http.get({
-        url: `${this.apiUrl}/search`,
-        headers: this.getNativeHeaders(),
-        params: { keyword }
-      })).pipe(
-        map(result => result.data as ApiResponse<Product[]>),
-        catchError((error) => this.handleNativeError(error))
-      );
-    }
-
-    return this.http.get<ApiResponse<Product[]>>(
-      `${this.apiUrl}/search?keyword=${keyword}`
-    );
+    const results = searchMockProducts(keyword);
+    // ép kiểu nhẹ sang Product[] optional fields
+    return of({ success: true, data: results as unknown as Product[] });
   }
 
   getCategories(): Observable<ApiResponse<any[]>> {
-    if (Capacitor.isNativePlatform()) {
-      return from(Http.get({
-  url: 'http://10.61.148.125:3000/api/categories',
-        headers: this.getNativeHeaders(),
-        params: {}
-      })).pipe(
-        map(result => result.data as ApiResponse<any[]>),
-        catchError((error) => this.handleNativeError(error))
-      );
-    }
-
-    return this.http.get<ApiResponse<any[]>>(
-  'http://10.61.148.125:3000/api/categories'
-    );
+    return of({ success: true, data: [] });
   }
 
   createProduct(formData: FormData | Record<string, any>): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(
-      this.apiUrl,
-      formData,
-      { headers: this.getHeaders() }
-    );
+    return of({ success: false, message: 'Đã tạm dừng tính năng thêm sản phẩm' });
   }
 
   getProductById(id: number): Observable<ApiResponse<any>> {
-    if (Capacitor.isNativePlatform()) {
-      return from(Http.get({
-        url: `${this.apiUrl}/${id}`,
-        headers: this.getNativeHeaders(),
-        params: {}
-      })).pipe(
-        map(result => result.data as ApiResponse<any>),
-        catchError((error) => this.handleNativeError(error))
-      );
-    }
-
-    return this.http.get<ApiResponse<any>>(
-      `${this.apiUrl}/${id}`,
-      { headers: this.getHeaders() }
-    );
+    return of({ success: false, message: 'Đã tạm dừng tính năng xem chi tiết sản phẩm' });
   }
 }

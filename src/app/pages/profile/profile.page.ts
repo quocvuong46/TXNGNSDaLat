@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon, IonList,
-  IonItem, IonLabel, IonAvatar, IonTabBar, IonTabButton, AlertController 
+  IonItem, IonLabel, IonTabBar, IonTabButton, AlertController 
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { person, heart, time, settings, logOut, chevronForward, helpCircle, home, search, qrCode, add } from 'ionicons/icons';
@@ -17,7 +17,7 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [
     IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon, IonList,
-    IonItem, IonLabel, IonAvatar, IonTabBar, IonTabButton,
+    IonItem, IonLabel, IonTabBar, IonTabButton,
     CommonModule, FormsModule, RouterModule
   ]
 })

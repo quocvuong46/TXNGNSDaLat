@@ -1,5 +1,5 @@
 export interface User {
-  id: number;
+  id: string;
   email: string;
   full_name: string;
   phone?: string;
@@ -39,6 +39,27 @@ export interface Product {
   unit?: string;
   origin?: string;
   scan_count?: number;
+}
+
+// Dùng cho truy xuất nguồn gốc mock (QR -> thông tin nông sản)
+export interface ProductTimelineEvent {
+  date: string;
+  title: string;
+  detail?: string;
+}
+
+export interface ProductOrigin {
+  id: string;              // mã mô phỏng từ QR
+  name: string;            // tên sản phẩm
+  farmName: string;        // tên nhà vườn
+  location?: string;       // địa chỉ tóm tắt
+  harvestDate: string;     // ngày thu hoạch (ISO hoặc dd/MM/yyyy)
+  certifications: string;  // VietGAP/GlobalGAP...
+  description: string;     // mô tả chi tiết
+  certificationImageUrl?: string;
+  images?: string[];       // ảnh sản phẩm/thực tế
+  mapEmbedUrl?: string;    // iframe map url
+  timeline?: ProductTimelineEvent[]; // hành trình
 }
 
 export interface Category {

@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon, IonCard,
-  IonCardContent, IonInput, IonItem, IonButtons, ToastController 
+  IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon,
+  IonInput, IonButtons, ToastController 
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { arrowBack, qrCode, search, checkmarkCircle, closeCircle } from 'ionicons/icons';
@@ -20,8 +20,8 @@ declare var BarcodeDetector: any;
   styleUrls: ['./scan-qr.page.scss'],
   standalone: true,
   imports: [
-    IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon, IonCard,
-    IonCardContent, IonInput, IonItem, IonButtons,
+    IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon,
+    IonInput, IonButtons,
     CommonModule, FormsModule, RouterModule
   ]
 })

@@ -3,9 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon, IonCard, 
-  IonCardHeader, IonCardTitle, IonCardContent, IonGrid, IonRow, IonCol,
-  IonFab, IonFabButton, IonSpinner, IonRefresher, IonRefresherContent,
+  IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon,
+  IonSpinner, IonRefresher, IonRefresherContent,
   IonTabBar, IonTabButton, IonLabel, IonButtons,
   ToastController, AlertController 
 } from '@ionic/angular/standalone';
@@ -21,9 +20,8 @@ import { Product } from '../../models/interfaces';
   styleUrls: ['./farmer-dashboard.page.scss'],
   standalone: true,
   imports: [
-    IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon, IonCard,
-    IonCardHeader, IonCardTitle, IonCardContent, IonGrid, IonRow, IonCol,
-    IonFab, IonFabButton, IonSpinner, IonRefresher, IonRefresherContent,
+    IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon,
+    IonSpinner, IonRefresher, IonRefresherContent,
     IonTabBar, IonTabButton, IonLabel, IonButtons,
     CommonModule, FormsModule, RouterModule
   ]
