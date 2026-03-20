@@ -14,8 +14,14 @@
     <!-- Camera Scanner Placeholder -->
     <div class="scanner-area">
       <div class="scanner-frame" [class.active]="isScanning">
-        <video #video *ngIf="isScanning" autoplay muted playsinline></video>
+        <div class="camera-layer">
+          <video #video *ngIf="isScanning" autoplay muted playsinline></video>
+        </div>
         <div class="scan-overlay" *ngIf="isScanning"></div>
+        <div class="scan-guidance" *ngIf="isScanning">
+          <ion-icon name="qr-code"></ion-icon>
+          <p>Đưa mã QR vào khung để quét</p>
+        </div>
         <div *ngIf="!isScanning" class="scanner-placeholder">
           <div class="qr-icon-large">
             <ion-icon name="qr-code"></ion-icon>

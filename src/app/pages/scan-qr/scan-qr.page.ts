@@ -9,8 +9,6 @@ import {
 import { addIcons } from 'ionicons';
 import { arrowBack, qrCode, search, checkmarkCircle, closeCircle } from 'ionicons/icons';
 import { ProductService } from '../../services/product.service';
-import { Capacitor } from '@capacitor/core';
-import { BarcodeScanner, BarcodeFormat } from '@capacitor-mlkit/barcode-scanning';
 
 declare var BarcodeDetector: any;
 
@@ -35,6 +33,7 @@ export class ScanQrPage implements OnInit, OnDestroy {
   private detector: any = null;
   private scanLoopId: number | null = null;
   private permissionChecked = false;
+  private warnedNoDetector = false;
 
   constructor(
     private productService: ProductService,
@@ -53,11 +52,9 @@ export class ScanQrPage implements OnInit, OnDestroy {
     if (this.permissionChecked) return;
     this.permissionChecked = true;
 
-    if (Capacitor.isNativePlatform()) {
-      const permissions = await BarcodeScanner.requestPermissions();
-      if (permissions.camera !== 'granted') {
-        await this.showToast('Bạn cần cấp quyền camera để quét mã QR');
-      }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      await this.showToast('Thiết bị không hỗ trợ camera cho quét QR');
+      return;
     }
   }
 
@@ -66,18 +63,13 @@ export class ScanQrPage implements OnInit, OnDestroy {
       return;
     }
 
-    if (Capacitor.isNativePlatform()) {
-      await this.startNativeScan();
-      return;
-    }
-
-    if (!('BarcodeDetector' in window)) {
-      await this.showToast('Thiết bị không hỗ trợ quét QR. Vui lòng nhập mã thủ công.');
-      return;
-    }
-
     try {
-      this.detector = new BarcodeDetector({ formats: ['qr_code'] });
+      if ('BarcodeDetector' in window) {
+        this.detector = new BarcodeDetector({ formats: ['qr_code'] });
+      } else {
+        this.detector = null; // fallback: we could add a third-party scanner here
+      }
+
       this.stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' }
       });
@@ -87,33 +79,13 @@ export class ScanQrPage implements OnInit, OnDestroy {
         this.videoElement.nativeElement.srcObject = this.stream;
         await this.videoElement.nativeElement.play();
         this.scanLoop();
+      } else {
+        await this.showToast('Không thể gắn luồng camera vào khung quét');
       }
     } catch (error) {
       console.error('Scan start error:', error);
       await this.showToast('Không thể bật camera. Vui lòng kiểm tra quyền truy cập.');
       this.stopScan();
-    }
-  }
-
-  private async startNativeScan() {
-    try {
-      const permissions = await BarcodeScanner.requestPermissions();
-      if (permissions.camera !== 'granted') {
-        await this.showToast('Bạn cần cấp quyền camera để quét mã QR');
-        return;
-      }
-
-  const result = await BarcodeScanner.scan({ formats: [BarcodeFormat.QrCode] });
-      const barcode = result?.barcodes?.[0]?.rawValue;
-      if (!barcode) {
-        await this.showToast('Không đọc được mã QR. Vui lòng thử lại.');
-        return;
-      }
-
-      await this.handleScannedCode(barcode);
-    } catch (error) {
-      console.error('Native scan error:', error);
-      await this.showToast('Không thể bật camera. Vui lòng kiểm tra quyền truy cập.');
     }
   }
 
@@ -130,7 +102,15 @@ export class ScanQrPage implements OnInit, OnDestroy {
   }
 
   private async scanLoop() {
-    if (!this.isScanning || !this.videoElement?.nativeElement || !this.detector) {
+    if (!this.isScanning || !this.videoElement?.nativeElement) {
+      return;
+    }
+
+    if (!this.detector) {
+      if (!this.warnedNoDetector) {
+        this.warnedNoDetector = true;
+        await this.showToast('Thiết bị không hỗ trợ quét tự động, vui lòng nhập mã thủ công.');
+      }
       return;
     }
 
