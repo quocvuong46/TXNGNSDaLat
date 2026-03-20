@@ -15,7 +15,13 @@
     <div class="scanner-area">
       <div class="scanner-frame" [class.active]="isScanning">
         <div class="camera-layer">
-          <video #video *ngIf="isScanning" autoplay muted playsinline></video>
+          <video
+            #video
+            *ngIf="isScanning"
+            autoplay
+            muted
+            playsinline
+          ></video>
         </div>
         <div class="scan-overlay" *ngIf="isScanning"></div>
         <div class="scan-guidance" *ngIf="isScanning">
