@@ -1,6 +1,6 @@
 import { ProductOrigin } from '../models/interfaces';
 
-export const MOCK_PRODUCT_ORIGINS: ProductOrigin[] = [
+const BASE_PRODUCTS: ProductOrigin[] = [
   {
     id: 'QR-DAUTAY-001',
     name: 'Dâu tây Đà Lạt (New Zealand)',
@@ -12,15 +12,13 @@ export const MOCK_PRODUCT_ORIGINS: ProductOrigin[] = [
     certificationImageUrl: 'https://i.imgur.com/VKaqY2n.jpeg',
     images: [
       'https://images.unsplash.com/photo-1506806732259-39c2d0268443?auto=format&fit=crop&w=900&q=80',
-      'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=900&q=80',
-      'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=900&q=80'
+      'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=900&q=80'
     ],
     mapEmbedUrl: 'https://www.openstreetmap.org/export/embed.html?bbox=108.4483%2C11.9304%2C108.4683%2C11.9504&layer=mapnik&marker=11.9404%2C108.4583',
     timeline: [
       { date: '2026-01-01', title: 'Xuống giống', detail: 'Trồng tại nhà màng số 3, giống New Zealand, giá thể sạch.' },
       { date: '2026-02-10', title: 'Chăm sóc sinh học', detail: 'Bón phân hữu cơ vi sinh, phun phòng sinh học neem oil.' },
-      { date: '2026-03-15', title: 'Thu hoạch & đóng gói', detail: 'Hái lúc 5h sáng, phân loại A, đóng gói mát 4°C.' },
-      { date: '2026-03-16', title: 'Vận chuyển', detail: 'Bàn giao cho đơn vị lạnh đi TP.HCM.' }
+      { date: '2026-03-15', title: 'Thu hoạch & đóng gói', detail: 'Hái lúc 5h sáng, phân loại A, đóng gói mát 4°C.' }
     ]
   },
   {
@@ -82,15 +80,69 @@ export const MOCK_PRODUCT_ORIGINS: ProductOrigin[] = [
   }
 ];
 
+const VARIANTS: Array<Pick<ProductOrigin, 'certifications' | 'description' | 'location'>> = [
+  { certifications: 'VietGAP', description: 'Canh tác hữu cơ, tưới nhỏ giọt, truy xuất đầy đủ.', location: 'Đà Lạt, Lâm Đồng' },
+  { certifications: 'GlobalGAP', description: 'Quy trình GlobalGAP, kiểm soát thuốc BVTV nghiêm ngặt.', location: 'Xuân Trường, Đà Lạt' },
+  { certifications: 'Organic', description: 'Canh tác hữu cơ, không hóa chất tổng hợp.', location: 'Trại Mát, Đà Lạt' },
+  { certifications: 'HACCP', description: 'Đóng gói chuẩn HACCP, chuỗi lạnh 4°C.', location: 'Đức Trọng, Lâm Đồng' },
+  { certifications: 'VietGAP+', description: 'VietGAP nâng cao, kiểm soát dư lượng định kỳ.', location: 'Liên Nghĩa, Đức Trọng' }
+];
+
+function buildMockProducts(total = 50): ProductOrigin[] {
+  const products: ProductOrigin[] = [];
+
+  // Seed base items first
+  BASE_PRODUCTS.forEach((p, index) => {
+    products.push({ ...p, id: p.id, name: p.name + ' #' + (index + 1) });
+  });
+
+  const photos = [
+    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1506807803488-8eafc15323c1?auto=format&fit=crop&w=900&q=80',
+    'https://images.unsplash.com/photo-1447175008436-054170c2e979?auto=format&fit=crop&w=900&q=80'
+  ];
+
+  for (let i = products.length; i < total; i++) {
+    const variant = VARIANTS[i % VARIANTS.length];
+    const code = `QR-PROD-${(i + 1).toString().padStart(3, '0')}`;
+    const baseName = ['Rau', 'Củ', 'Quả', 'Hoa', 'Trà', 'Mật ong'][i % 6];
+    const item: ProductOrigin = {
+      id: code,
+      name: `${baseName} đặc sản Đà Lạt ${i + 1}`,
+      farmName: `Trang trại cao nguyên ${((i % 5) + 1)}`,
+      location: variant.location,
+      harvestDate: '2026-03-01',
+      certifications: variant.certifications,
+      description: variant.description,
+      certificationImageUrl: 'https://i.imgur.com/VKaqY2n.jpeg',
+      images: [photos[i % photos.length]],
+      mapEmbedUrl: BASE_PRODUCTS[0].mapEmbedUrl,
+      timeline: [
+        { date: '2026-01-15', title: 'Gieo trồng', detail: 'Gieo trồng và chăm sóc tiêu chuẩn cao nguyên.' },
+        { date: '2026-02-15', title: 'Chăm sóc', detail: 'Kiểm tra sâu bệnh, tưới nhỏ giọt, bón phân hữu cơ.' },
+        { date: '2026-03-01', title: 'Thu hoạch', detail: 'Thu hoạch sáng sớm, đóng gói mát.' }
+      ]
+    };
+    products.push(item);
+  }
+
+  return products;
+}
+
+export const MOCK_PRODUCT_ORIGINS: ProductOrigin[] = buildMockProducts(50);
+
 export function findOriginByCode(code: string): ProductOrigin | null {
   const normalized = code.trim();
-  // chấp nhận cả dạng qr url chứa mã ở cuối
   const match = MOCK_PRODUCT_ORIGINS.find(p => p.id.toLowerCase() === normalized.toLowerCase());
   if (match) return match;
 
-  // thử tìm theo tên đơn giản (nếu user gõ tên)
   const lower = normalized.toLowerCase();
-  return MOCK_PRODUCT_ORIGINS.find(p => p.name.toLowerCase().includes(lower)) ?? null;
+  return MOCK_PRODUCT_ORIGINS.find(p =>
+    p.name.toLowerCase().includes(lower) ||
+    p.farmName.toLowerCase().includes(lower) ||
+    p.certifications.toLowerCase().includes(lower)
+  ) ?? null;
 }
 
 export function searchMockProducts(keyword: string): ProductOrigin[] {
@@ -102,4 +154,8 @@ export function searchMockProducts(keyword: string): ProductOrigin[] {
     p.farmName.toLowerCase().includes(lower) ||
     p.certifications.toLowerCase().includes(lower)
   );
+}
+
+export function getAllMockProducts(): ProductOrigin[] {
+  return MOCK_PRODUCT_ORIGINS;
 }

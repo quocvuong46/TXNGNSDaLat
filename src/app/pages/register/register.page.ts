@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { 
-  IonContent, IonItem, IonInput, IonButton, IonIcon, IonSpinner, IonSelect, IonSelectOption,
+  IonContent, IonItem, IonInput, IonButton, IonIcon, IonSpinner,
   ToastController 
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../services/auth.service';
 import { RegisterRequest } from '../../models/interfaces';
 import { addIcons } from 'ionicons';
-import { person, mail, call, lockClosed, people, arrowBack } from 'ionicons/icons';
+import { person, mail, call, lockClosed, arrowBack } from 'ionicons/icons';
 
 @Component({
   selector: 'app-register',
@@ -17,7 +17,7 @@ import { person, mail, call, lockClosed, people, arrowBack } from 'ionicons/icon
   styleUrls: ['./register.page.scss'],
   standalone: true,
   imports: [
-    IonContent, IonItem, IonInput, IonButton, IonIcon, IonSpinner, IonSelect, IonSelectOption,
+    IonContent, IonItem, IonInput, IonButton, IonIcon, IonSpinner,
     CommonModule, FormsModule, RouterModule
   ]
 })
@@ -26,8 +26,7 @@ export class RegisterPage {
     email: '',
     password: '',
     full_name: '',
-    phone: '',
-    role: 'customer'
+    phone: ''
   };
   loading = false;
 
@@ -36,7 +35,7 @@ export class RegisterPage {
     private router: Router,
     private toastController: ToastController
   ) {
-    addIcons({ person, mail, call, lockClosed, people, arrowBack });
+    addIcons({ person, mail, call, lockClosed, arrowBack });
   }
 
   async onRegister() {

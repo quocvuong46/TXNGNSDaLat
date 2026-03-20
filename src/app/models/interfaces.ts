@@ -79,7 +79,7 @@ export interface RegisterRequest {
   password: string;
   full_name: string;
   phone?: string;
-  role: 'farmer' | 'customer';
+  role?: 'farmer' | 'customer';
 }
 
 export interface ApiResponse<T> {
