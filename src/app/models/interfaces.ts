@@ -19,22 +19,22 @@ export interface FarmerProfile {
 }
 
 export interface Product {
-  id: number;
-  product_code: string;
+  id: string | number;
+  product_code?: string;
   name: string;
   category_name?: string;
-  quantity: number;
-  harvest_date: string;
+  quantity?: number;
+  harvest_date?: string;
   description?: string;
   cultivation_method?: string;
   certifications?: string;
   image_url?: string;
   qr_code_url?: string;
-  status: 'available' | 'sold' | 'expired';
+  status?: 'available' | 'sold' | 'expired';
   farm_name?: string;
   farmer_name?: string;
   farmer_phone?: string;
-  created_at: string;
+  created_at?: string;
   price?: number;
   unit?: string;
   origin?: string;
@@ -60,6 +60,12 @@ export interface ProductOrigin {
   images?: string[];       // ảnh sản phẩm/thực tế
   mapEmbedUrl?: string;    // iframe map url
   timeline?: ProductTimelineEvent[]; // hành trình
+  // Optional commerce-style fields for UI reuse
+  price?: number;
+  quantity?: number;
+  unit?: string;
+  image_url?: string;
+  scan_count?: number;
 }
 
 export interface Category {

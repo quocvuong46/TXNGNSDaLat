@@ -12,7 +12,7 @@ import { addIcons } from 'ionicons';
 import { add, qrCode, leaf, eye, arrowBack, cube, addCircle, chevronForward, home, search, person, notifications, notificationsOutline, trash } from 'ionicons/icons';
 import { ProductService } from '../../services/product.service';
 import { AuthService } from '../../services/auth.service';
-import { Product } from '../../models/interfaces';
+import { ApiResponse, Product } from '../../models/interfaces';
 
 @Component({
   selector: 'app-farmer-dashboard',
@@ -56,7 +56,7 @@ export class FarmerDashboardPage implements OnInit {
   loadProducts() {
     this.loading = true;
     this.productService.getMyProducts().subscribe({
-      next: (response) => {
+      next: (response: ApiResponse<Product[]>) => {
         this.loading = false;
         if (response.success) {
           this.products = response.data || [];
@@ -72,14 +72,14 @@ export class FarmerDashboardPage implements OnInit {
 
   calculateStats() {
     this.stats.totalProducts = this.products.length;
-    this.stats.totalScans = this.products.reduce((sum, p) => sum + (p.scan_count || 0), 0);
+    this.stats.totalScans = this.products.reduce((sum, p) => sum + (p.scan_count ?? 0), 0);
   }
 
   goToAddProduct() {
     this.router.navigate(['/add-product']);
   }
 
-  goToProductDetail(productId: number) {
+  goToProductDetail(productId: string | number) {
     this.router.navigate(['/product-detail', productId]);
   }
 
@@ -103,13 +103,13 @@ export class FarmerDashboardPage implements OnInit {
     await alert.present();
   }
 
-  private deleteProduct(productId?: number) {
+  private deleteProduct(productId?: string | number) {
     if (!productId) {
       this.showToast('Không tìm thấy sản phẩm để xóa');
       return;
     }
     this.productService.deleteProduct(productId).subscribe({
-      next: (response) => {
+      next: (response: ApiResponse<any>) => {
         if (response.success) {
           this.products = this.products.filter((p) => p.id !== productId);
           this.calculateStats();
