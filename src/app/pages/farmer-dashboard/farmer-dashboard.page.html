@@ -63,11 +63,11 @@
         <img [src]="getImageUrl(product.image_url)" [alt]="product.name" />
         <div class="product-info">
           <h3>{{ product.name }}</h3>
-          <p class="price">{{ product.price | number }} đ</p>
+          <p class="price">{{ (product.price ?? 0) | number }} đ</p>
           <div class="product-meta">
-            <span class="quantity">{{ product.quantity }} {{ product.unit }}</span>
-            <span class="status" [class.in-stock]="product.quantity > 0" [class.out-of-stock]="product.quantity === 0">
-              {{ product.quantity > 0 ? 'Còn hàng' : 'Hết hàng' }}
+            <span class="quantity">{{ product.quantity ?? 0 }} {{ product.unit || 'kg' }}</span>
+            <span class="status" [class.in-stock]="(product.quantity ?? 0) > 0" [class.out-of-stock]="(product.quantity ?? 0) === 0">
+              {{ (product.quantity ?? 0) > 0 ? 'Còn hàng' : 'Hết hàng' }}
             </span>
           </div>
         </div>

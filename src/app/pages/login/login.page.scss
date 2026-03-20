@@ -147,5 +147,14 @@
       --border-color: #ea4335;
       --color: #ea4335;
     }
+
+    /* Safety: hide any old Facebook button variants if cached build still renders it */
+    &.facebook {
+      display: none !important;
+      height: 0;
+      padding: 0;
+      margin: 0;
+      border: 0;
+    }
   }
 }
