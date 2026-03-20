@@ -34,6 +34,7 @@ export class ScanQrPage implements OnInit, OnDestroy {
   private stream: MediaStream | null = null;
   private detector: any = null;
   private scanLoopId: number | null = null;
+  private permissionChecked = false;
 
   constructor(
     private productService: ProductService,
@@ -43,7 +44,22 @@ export class ScanQrPage implements OnInit, OnDestroy {
     addIcons({ arrowBack, qrCode, search, checkmarkCircle, closeCircle });
   }
 
-  ngOnInit() {}
+  async ngOnInit() {
+    await this.ensureCameraPermission();
+    this.startScan();
+  }
+
+  private async ensureCameraPermission() {
+    if (this.permissionChecked) return;
+    this.permissionChecked = true;
+
+    if (Capacitor.isNativePlatform()) {
+      const permissions = await BarcodeScanner.requestPermissions();
+      if (permissions.camera !== 'granted') {
+        await this.showToast('Bạn cần cấp quyền camera để quét mã QR');
+      }
+    }
+  }
 
   async startScan() {
     if (this.isScanning) {
