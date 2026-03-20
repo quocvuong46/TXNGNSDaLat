@@ -5,10 +5,13 @@ import {
   Auth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   onAuthStateChanged,
   User as FirebaseUser,
-  updateProfile
+  updateProfile,
+  GoogleAuthProvider,
+  AuthProvider
 } from '@angular/fire/auth';
 import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
 
@@ -124,7 +127,7 @@ export class AuthService {
           email: data.email,
           full_name: data.full_name,
           phone: data.phone,
-          role: data.role
+          role: 'customer'
         };
 
         return from(Promise.all([
@@ -174,5 +177,23 @@ export class AuthService {
 
   ping(): Observable<ApiResponse<any>> {
     return of({ success: true, message: 'Firebase sẵn sàng' });
+  }
+
+  private loginWithProvider(provider: AuthProvider): Observable<ApiResponse<{ token: string; user: User }>> {
+    return from(signInWithPopup(this.auth, provider)).pipe(
+      switchMap((credential) => from(this.buildSessionFromFirebaseUser(credential.user))),
+      map(({ token, user }) => {
+        this.persistSession(token, user);
+        this.currentUserSubject.next(user);
+        return { success: true, data: { token, user } } satisfies ApiResponse<{ token: string; user: User }>;
+      }),
+      catchError((err) => throwError(() => this.normalizeError(err)))
+    );
+  }
+
+  loginWithGoogle(): Observable<ApiResponse<{ token: string; user: User }>> {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    return this.loginWithProvider(provider);
   }
 }

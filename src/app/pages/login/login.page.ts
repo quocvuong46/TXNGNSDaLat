@@ -5,7 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { IonContent, IonItem, IonInput, IonButton, IonIcon, IonSpinner, ToastController } from '@ionic/angular/standalone';
 import { AuthService } from '../../services/auth.service';
 import { addIcons } from 'ionicons';
-import { leaf, mail, lockClosed } from 'ionicons/icons';
+import { leaf, mail, lockClosed, logoGoogle } from 'ionicons/icons';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +20,7 @@ export class LoginPage {
     password: ''
   };
   loading = false;
+  socialLoading: 'google' | null = null;
   apiUrl = '';
 
   constructor(
@@ -27,7 +28,7 @@ export class LoginPage {
     private router: Router,
     private toastController: ToastController
   ) {
-    addIcons({ leaf, mail, lockClosed });
+    addIcons({ leaf, mail, lockClosed, logoGoogle });
     this.apiUrl = this.authService.getApiUrl();
   }
 
@@ -43,13 +44,7 @@ export class LoginPage {
         this.loading = false;
         if (response.success && response.data) {
           await this.showToast('Đăng nhập thành công!');
-          
-          // Điều hướng dựa trên role
-          if (response.data.user.role === 'farmer') {
-            this.router.navigate(['/farmer-dashboard']);
-          } else {
-            this.router.navigate(['/home']);
-          }
+          this.router.navigate(['/home']);
         }
       },
       error: async (error) => {
@@ -83,6 +78,25 @@ export class LoginPage {
       },
       error: async (error) => {
         const message = error?.message || 'Không kết nối được server';
+        await this.showToast(message);
+      }
+    });
+  }
+
+  loginWithGoogle() {
+    if (this.socialLoading) return;
+    this.socialLoading = 'google';
+    this.authService.loginWithGoogle().subscribe({
+      next: async (response) => {
+        this.socialLoading = null;
+        if (response.success && response.data) {
+          await this.showToast('Đăng nhập Google thành công!');
+          this.router.navigate(['/home']);
+        }
+      },
+      error: async (error) => {
+        this.socialLoading = null;
+        const message = error?.message || 'Không đăng nhập Google được';
         await this.showToast(message);
       }
     });

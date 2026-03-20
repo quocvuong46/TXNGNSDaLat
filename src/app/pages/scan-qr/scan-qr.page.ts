@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -24,7 +24,7 @@ declare var BarcodeDetector: any;
   ]
 })
 
-export class ScanQrPage implements OnInit, OnDestroy {
+export class ScanQrPage implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('video', { static: false }) videoElement?: ElementRef<HTMLVideoElement>;
 
   manualCode = '';
@@ -45,7 +45,10 @@ export class ScanQrPage implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.ensureCameraPermission();
-    this.startScan();
+  }
+
+  async ngAfterViewInit() {
+    await this.startScan();
   }
 
   private async ensureCameraPermission() {
@@ -63,6 +66,13 @@ export class ScanQrPage implements OnInit, OnDestroy {
       return;
     }
 
+    await this.ensureCameraPermission();
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      await this.showToast('Thiết bị không hỗ trợ camera cho quét QR');
+      return;
+    }
+
     try {
       if ('BarcodeDetector' in window) {
         this.detector = new BarcodeDetector({ formats: ['qr_code'] });
@@ -75,9 +85,10 @@ export class ScanQrPage implements OnInit, OnDestroy {
       });
       this.isScanning = true;
 
-      if (this.videoElement?.nativeElement) {
-        this.videoElement.nativeElement.srcObject = this.stream;
-        await this.videoElement.nativeElement.play();
+      const videoEl = await this.waitForVideoElement();
+      if (videoEl) {
+        videoEl.srcObject = this.stream;
+        await videoEl.play();
         this.scanLoop();
       } else {
         await this.showToast('Không thể gắn luồng camera vào khung quét');
@@ -87,6 +98,16 @@ export class ScanQrPage implements OnInit, OnDestroy {
       await this.showToast('Không thể bật camera. Vui lòng kiểm tra quyền truy cập.');
       this.stopScan();
     }
+  }
+
+  private async waitForVideoElement(retries = 10, delay = 100): Promise<HTMLVideoElement | null> {
+    for (let i = 0; i < retries; i++) {
+      if (this.videoElement?.nativeElement) {
+        return this.videoElement.nativeElement;
+      }
+      await new Promise(res => setTimeout(res, delay));
+    }
+    return this.videoElement?.nativeElement ?? null;
   }
 
   stopScan() {

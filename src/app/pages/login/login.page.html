@@ -46,6 +46,15 @@
       </div>
     </form>
 
+    <div class="social-login">
+      <p>Hoặc đăng nhập nhanh</p>
+      <ion-button expand="block" fill="outline" class="social-btn google" (click)="loginWithGoogle()" [disabled]="socialLoading === 'google'">
+        <ion-spinner *ngIf="socialLoading === 'google'" name="crescent"></ion-spinner>
+        <ion-icon *ngIf="socialLoading !== 'google'" name="logo-google" slot="start"></ion-icon>
+        <span>Google</span>
+      </ion-button>
+    </div>
+
     <div class="register-link">
       <p>Chưa có tài khoản? <a routerLink="/register">Đăng ký ngay</a></p>
     </div>
