@@ -71,6 +71,9 @@ export class RegisterPage {
         if (response.success) {
           await this.showToast('Đăng ký thành công! Vui lòng đăng nhập.');
           this.router.navigate(['/login']);
+        } else {
+          const message = response.message || 'Đăng ký thất bại';
+          await this.showToast(message);
         }
       },
       error: async (error) => {

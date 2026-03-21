@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "917076566370",
+    "firebase_url": "https://traceability-d2da8-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "traceability-d2da8",
+    "storage_bucket": "traceability-d2da8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:917076566370:android:4f2c0de1e5586ba0810c3b",
+        "android_client_info": {
+          "package_name": "io.ionic.starter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "917076566370-kq0nc8ajdmesdo32js88cki1tfasfqtq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7iesJp0M1RQsAgMF6TrXGqE4q59f1In8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "917076566370-kq0nc8ajdmesdo32js88cki1tfasfqtq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

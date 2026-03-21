@@ -11,8 +11,11 @@ import {
   User as FirebaseUser,
   updateProfile,
   GoogleAuthProvider,
-  AuthProvider
+  AuthProvider,
+  signInWithCredential
 } from '@angular/fire/auth';
+import { Capacitor } from '@capacitor/core';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
 
 @Injectable({
@@ -38,6 +41,14 @@ export class AuthService {
         this.persistSession(session.token, session.user);
         this.currentUserSubject.next(session.user);
       } else {
+        // Nếu Firebase báo null nhưng chúng ta còn session lưu local (offline / reload nhanh), giữ nguyên session
+        if (this.hasStoredSession()) {
+          const storedUser = this.getStoredUser();
+          if (storedUser) {
+            this.currentUserSubject.next(storedUser);
+          }
+          return;
+        }
         this.clearSession();
       }
     });
@@ -55,6 +66,13 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.currentUserSubject.next(null);
+  }
+
+  private fetchUserProfileWithTimeout(uid: string, ms = 1200): Promise<User | null> {
+    return Promise.race([
+      this.fetchUserProfile(uid),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), ms))
+    ]);
   }
 
   private async fetchUserProfile(uid: string): Promise<User | null> {
@@ -75,7 +93,7 @@ export class AuthService {
     try {
       [token, profile] = await Promise.all([
         fbUser.getIdToken(),
-        this.fetchUserProfile(fbUser.uid)
+        this.fetchUserProfileWithTimeout(fbUser.uid)
       ]);
     } catch (err) {
       console.warn('buildSessionFromFirebaseUser fallback (offline or error)', err);
@@ -98,6 +116,21 @@ export class AuthService {
     localStorage.setItem('user', JSON.stringify(user));
   }
 
+  private hasStoredSession(): boolean {
+    return !!localStorage.getItem('token') && !!localStorage.getItem('user');
+  }
+
+  private getStoredUser(): User | null {
+    try {
+      const raw = localStorage.getItem('user');
+      if (!raw) return null;
+      return JSON.parse(raw) as User;
+    } catch (err) {
+      console.warn('Failed to parse stored user', err);
+      return null;
+    }
+  }
+
   private normalizeError(err: any) {
     return {
       status: 0,
@@ -114,7 +147,7 @@ export class AuthService {
         this.currentUserSubject.next(user);
         return { success: true, data: { token, user } } satisfies ApiResponse<{ token: string; user: User }>;
       }),
-      catchError((err) => throwError(() => this.normalizeError(err)))
+        catchError((err) => throwError(() => this.normalizeError(err)))
     );
   }
 
@@ -142,7 +175,7 @@ export class AuthService {
           })
         );
       }),
-      catchError((err) => throwError(() => this.normalizeError(err)))
+        catchError((err) => throwError(() => this.normalizeError(err)))
     );
   }
 
@@ -180,7 +213,29 @@ export class AuthService {
   }
 
   private loginWithProvider(provider: AuthProvider): Observable<ApiResponse<{ token: string; user: User }>> {
-    return from(signInWithPopup(this.auth, provider)).pipe(
+    // Web fallback: still can use popup
+    if (!Capacitor.isNativePlatform()) {
+      return from(signInWithPopup(this.auth, provider)).pipe(
+        switchMap((credential) => from(this.buildSessionFromFirebaseUser(credential.user))),
+        map(({ token, user }) => {
+          this.persistSession(token, user);
+          this.currentUserSubject.next(user);
+          return { success: true, data: { token, user } } satisfies ApiResponse<{ token: string; user: User }>;
+        }),
+        catchError((err) => throwError(() => this.normalizeError(err)))
+      );
+    }
+
+    // Native (Capacitor) flow using GoogleAuth plugin
+    return from(
+      GoogleAuth.signIn()
+        .then((googleUser: any) => {
+          const idToken = googleUser.authentication?.idToken;
+          if (!idToken) throw new Error('Không lấy được idToken từ GoogleAuth');
+          const credential = GoogleAuthProvider.credential(idToken);
+          return signInWithCredential(this.auth, credential);
+        })
+    ).pipe(
       switchMap((credential) => from(this.buildSessionFromFirebaseUser(credential.user))),
       map(({ token, user }) => {
         this.persistSession(token, user);

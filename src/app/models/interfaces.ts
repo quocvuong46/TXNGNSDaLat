@@ -32,6 +32,8 @@ export interface Product {
   qr_code_url?: string;
   status?: 'available' | 'sold' | 'expired';
   farm_name?: string;
+  farm_address?: string;
+  district?: string;
   farmer_name?: string;
   farmer_phone?: string;
   created_at?: string;
@@ -66,6 +68,12 @@ export interface ProductOrigin {
   unit?: string;
   image_url?: string;
   scan_count?: number;
+  farmerName?: string;
+  farmerPhone?: string;
+  category_name?: string;
+  qr_code_url?: string;
+  cultivation_method?: string;
+  status?: 'available' | 'sold' | 'expired';
 }
 
 export interface Category {

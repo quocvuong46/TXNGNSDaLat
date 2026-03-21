@@ -9,6 +9,8 @@ import {
 import { addIcons } from 'ionicons';
 import { arrowBack, qrCode, search, checkmarkCircle, closeCircle } from 'ionicons/icons';
 import { ProductService } from '../../services/product.service';
+import { firstValueFrom, take } from 'rxjs';
+import { PRODUCT_DETAIL_MOCKS } from '../trace-info/mock-data';
 
 declare var BarcodeDetector: any;
 
@@ -155,8 +157,9 @@ export class ScanQrPage implements OnInit, AfterViewInit, OnDestroy {
       this.showToast('Vui lòng nhập mã sản phẩm');
       return;
     }
-
-    this.lookupProductByCode(code);
+    this.stopScan();
+    this.showToast('Đang tra cứu mã, vui lòng chờ...');
+    void this.lookupProductByCode(code);
   }
 
   private async handleScannedCode(code: string) {
@@ -203,24 +206,39 @@ export class ScanQrPage implements OnInit, AfterViewInit, OnDestroy {
     return value;
   }
 
-  private lookupProductByCode(code: string) {
-    this.productService.traceProduct(code).subscribe({
-      next: (response: any) => {
-        if (response.success && response.data) {
-          const productId = response.data.id || response.data.product?.id;
-          if (productId) {
-            this.router.navigate(['/product-detail', productId]);
-            return;
-          }
-          this.showToast('Không tìm thấy sản phẩm');
-        } else {
-          this.showToast('Không tìm thấy sản phẩm');
+  private async lookupProductByCode(code: string) {
+    try {
+      const directMock = PRODUCT_DETAIL_MOCKS.find((p) => p.id.toLowerCase() === code.toLowerCase());
+      if (directMock) {
+        const okMock = await this.router.navigate(['/trace', directMock.id]);
+        if (!okMock) {
+          await this.showToast('Không điều hướng được tới trang sản phẩm');
         }
-      },
-      error: async () => {
-        await this.showToast('Không tìm thấy sản phẩm với mã này');
+        return;
       }
-    });
+
+      // One-time fetch only
+      const response: any = await firstValueFrom(this.productService.traceProduct(code).pipe(take(1)));
+      if (response.success && response.data) {
+        const product = response.data.product ?? response.data;
+        const productId = (product?.id ?? product?.product_code ?? code).toString();
+        if (productId) {
+          // Ưu tiên trang trace (không guard) để chắc chắn hiển thị; nếu muốn chi tiết mock thì vào product-detail.
+          const ok = await this.router.navigate(['/trace', productId]);
+          if (!ok) {
+            const fallback = await this.router.navigate(['/product-detail', productId]);
+            if (!fallback) {
+              await this.showToast('Không điều hướng được tới trang sản phẩm');
+            }
+          }
+          return;
+        }
+      }
+      await this.showToast('Không tìm thấy sản phẩm');
+    } catch (error) {
+      console.error('lookupProductByCode error', error);
+      await this.showToast('Không tìm thấy sản phẩm với mã này');
+    }
   }
 
   ngOnDestroy() {
