@@ -45,6 +45,9 @@ export class LoginPage {
         if (response.success && response.data) {
           await this.showToast('Đăng nhập thành công!');
           this.router.navigate(['/home']);
+        } else {
+          const message = response.message || 'Đăng nhập thất bại';
+          await this.showToast(message);
         }
       },
       error: async (error) => {

@@ -75,7 +75,22 @@
   <!-- Recent Products -->
   <div class="products-section">
     <h2 class="section-title">Sản phẩm gần đây</h2>
-    <p class="empty-text">Nhập từ khóa để tìm kiếm</p>
+    <div *ngIf="!history || history.length === 0" class="empty-text muted">
+      Chưa có sản phẩm nào được quét gần đây
+    </div>
+
+    <ion-list *ngIf="history && history.length">
+      <ion-item *ngFor="let item of history" button (click)="openDetail(item.id)">
+        <ion-avatar slot="start">
+          <img [src]="item.image || 'assets/placeholder.jpg'" alt="{{item.name}}" />
+        </ion-avatar>
+        <ion-label>
+          <h3>{{ item.name }}</h3>
+          <p class="sub">{{ item.dateViewed | date:'short' }}</p>
+        </ion-label>
+        <ion-icon name="chevron-forward" slot="end"></ion-icon>
+      </ion-item>
+    </ion-list>
   </div>
 </ion-content>
 

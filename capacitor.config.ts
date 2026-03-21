@@ -7,6 +7,13 @@ const config: CapacitorConfig = {
   server: {
     cleartext: true,
     allowNavigation: ['10.61.148.125', 'http://10.61.148.125:3000']
+  },
+  plugins: {
+    GoogleAuth: {
+      scopes: ['profile', 'email'],
+      serverClientId: '917076566370-kq0nc8ajdmesdo32js88cki1tfasfqtq.apps.googleusercontent.com',
+      forceCodeForRefreshToken: false
+    }
   }
 };
 
