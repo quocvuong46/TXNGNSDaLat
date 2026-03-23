@@ -19,9 +19,46 @@
   <div *ngIf="!loading && product" class="trace-container">
     <!-- Hero -->
     <ion-card class="hero-card">
-      <img [src]="getImageUrl(product.coverImage)" [alt]="product.name" />
+      <div class="hero-media">
+        <img [src]="getImageUrl(product.coverImage)" [alt]="product.name" />
+      </div>
       <ion-card-header>
         <ion-card-title>{{ product.name }}</ion-card-title>
+        <div class="cert-badges" *ngIf="product.certifications?.length">
+          <span class="badge" *ngFor="let c of product.certifications">{{ c }}</span>
+        </div>
+        <div class="hero-pills">
+          <div class="pill" *ngIf="product.price">
+            <ion-icon name="pricetag"></ion-icon>
+            <span>{{ product.price | currency:'VND':'symbol':'1.0-0' }}<ng-container *ngIf="product.unit">/{{ product.unit }}</ng-container></span>
+          </div>
+          <div class="pill" *ngIf="product.stock !== undefined">
+            <ion-icon name="cube"></ion-icon>
+            <span>Tồn: {{ product.stock }}</span>
+          </div>
+          <div class="pill" *ngIf="product.status">
+            <ion-icon name="checkmark-circle"></ion-icon>
+            <span>{{ product.status === 'available' ? 'Còn hàng' : 'Hết hàng' }}</span>
+          </div>
+          <div class="pill" *ngIf="product.scanCount">
+            <ion-icon name="qr-code"></ion-icon>
+            <span>{{ product.scanCount }} lượt quét</span>
+          </div>
+        </div>
+        <div class="hero-meta">
+          <div class="meta-item" *ngIf="product.originInfo.farmName">
+            <ion-icon name="leaf"></ion-icon>
+            <span>{{ product.originInfo.farmName }}</span>
+          </div>
+          <div class="meta-item" *ngIf="product.originInfo.origin">
+            <ion-icon name="location-outline"></ion-icon>
+            <span>{{ product.originInfo.origin }}</span>
+          </div>
+          <div class="meta-item" *ngIf="product.originInfo.harvestDate">
+            <ion-icon name="calendar"></ion-icon>
+            <span>Thu hoạch: {{ product.originInfo.harvestDate | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
       </ion-card-header>
     </ion-card>
 
@@ -35,37 +72,58 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Thông tin xuất xứ -->
+    <!-- Thông tin nông trại & lô hàng -->
     <ion-card>
       <ion-card-header>
-        <ion-card-title>Thông tin xuất xứ</ion-card-title>
+        <ion-card-title>Nông trại & Lô hàng</ion-card-title>
       </ion-card-header>
       <ion-card-content>
         <ion-list lines="none">
-          <ion-item>
+          <ion-item *ngIf="product.originInfo.address">
             <ion-icon slot="start" name="location-outline" color="success"></ion-icon>
             <ion-label>
               <h3>Địa chỉ</h3>
               <p>{{ product.originInfo.address }}</p>
             </ion-label>
           </ion-item>
-          <ion-item>
+          <ion-item *ngIf="product.originInfo.contactName || product.originInfo.contactPhone">
+            <ion-icon slot="start" name="person" color="success"></ion-icon>
+            <ion-label>
+              <h3>Liên hệ</h3>
+              <p>{{ product.originInfo.contactName || 'Người liên hệ' }}</p>
+              <p class="sub" *ngIf="product.originInfo.contactPhone">{{ product.originInfo.contactPhone }}</p>
+            </ion-label>
+          </ion-item>
+          <ion-item *ngIf="product.batch?.lot">
+            <ion-icon slot="start" name="cube" color="success"></ion-icon>
+            <ion-label>
+              <h3>Mã lô</h3>
+              <p>{{ product.batch?.lot }}</p>
+            </ion-label>
+          </ion-item>
+          <ion-item *ngIf="product.batch?.packDate">
             <ion-icon slot="start" name="calendar" color="success"></ion-icon>
             <ion-label>
-              <h3>Ngày thu hoạch</h3>
-              <p>{{ product.originInfo.harvestDate | date:'dd/MM/yyyy' }}</p>
+              <h3>Đóng gói</h3>
+              <p>{{ product.batch?.packDate | date:'dd/MM/yyyy' }}</p>
             </ion-label>
           </ion-item>
-          <ion-item>
-            <ion-icon slot="start" name="leaf" color="success"></ion-icon>
+          <ion-item *ngIf="product.batch?.expiryDate">
+            <ion-icon slot="start" name="calendar" color="success"></ion-icon>
             <ion-label>
-              <h3>Nông trại</h3>
-              <p>{{ product.originInfo.farmName }}</p>
-              <p class="sub">{{ product.originInfo.origin }}</p>
+              <h3>Hạn dùng</h3>
+              <p>{{ product.batch?.expiryDate | date:'dd/MM/yyyy' }}</p>
             </ion-label>
           </ion-item>
-          <ion-item>
+          <ion-item *ngIf="product.batch?.storage || product.originInfo.storage">
             <ion-icon slot="start" name="information-circle" color="success"></ion-icon>
+            <ion-label>
+              <h3>Bảo quản</h3>
+              <p>{{ product.batch?.storage || product.originInfo.storage }}</p>
+            </ion-label>
+          </ion-item>
+          <ion-item *ngIf="product.certificate?.name">
+            <ion-icon slot="start" name="ribbon" color="success"></ion-icon>
             <ion-label>
               <h3>Giấy chứng nhận</h3>
               <a [href]="product.certificate.url" target="_blank" class="cert-link">{{ product.certificate.name }}</a>
@@ -89,6 +147,9 @@
             scrolling="no"
             [src]="getMapSafeUrl()">
           </iframe>
+          <ion-button expand="block" fill="clear" color="success" *ngIf="getExternalMapUrl()" [href]="getExternalMapUrl()" target="_blank">
+            Mở trên Google Maps
+          </ion-button>
         </div>
         <ng-template #noMap>
           <p>Chưa có tọa độ bản đồ.</p>
@@ -111,6 +172,64 @@
               <p>{{ step.content }}</p>
             </div>
           </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Thông tin dinh dưỡng -->
+    <ion-card *ngIf="product.nutrition">
+      <ion-card-header>
+        <ion-card-title>Dinh dưỡng (100g)</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="nutrition-grid">
+          <div class="nutri-item" *ngIf="product.nutrition?.calories !== undefined">
+            <span class="label">Calo</span>
+            <strong>{{ product.nutrition.calories }} kcal</strong>
+          </div>
+          <div class="nutri-item" *ngIf="product.nutrition?.carbs !== undefined">
+            <span class="label">Carbs</span>
+            <strong>{{ product.nutrition.carbs }} g</strong>
+          </div>
+          <div class="nutri-item" *ngIf="product.nutrition?.protein !== undefined">
+            <span class="label">Protein</span>
+            <strong>{{ product.nutrition.protein }} g</strong>
+          </div>
+          <div class="nutri-item" *ngIf="product.nutrition?.fat !== undefined">
+            <span class="label">Chất béo</span>
+            <strong>{{ product.nutrition.fat }} g</strong>
+          </div>
+          <div class="nutri-item" *ngIf="product.nutrition?.fiber !== undefined">
+            <span class="label">Chất xơ</span>
+            <strong>{{ product.nutrition.fiber }} g</strong>
+          </div>
+        </div>
+        <div class="vitamins" *ngIf="product.nutrition?.vitamins?.length">
+          <span>Vitamin/Khoáng:</span>
+          <div class="vitamin-chips">
+            <span class="chip" *ngFor="let v of product.nutrition?.vitamins">{{ v }}</span>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Sử dụng & món gợi ý -->
+    <ion-card *ngIf="product.usage?.tips?.length || product.usage?.recipes?.length">
+      <ion-card-header>
+        <ion-card-title>Hướng dẫn sử dụng</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <div *ngIf="product.usage?.tips?.length">
+          <h4>Mẹo bảo quản/chuẩn bị</h4>
+          <ul>
+            <li *ngFor="let t of product.usage?.tips">{{ t }}</li>
+          </ul>
+        </div>
+        <div *ngIf="product.usage?.recipes?.length">
+          <h4>Món gợi ý</h4>
+          <ul>
+            <li *ngFor="let r of product.usage?.recipes">{{ r }}</li>
+          </ul>
         </div>
       </ion-card-content>
     </ion-card>

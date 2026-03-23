@@ -38,35 +38,77 @@ ion-spinner {
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   margin-bottom: 16px;
-
-  img {
+  .hero-media img {
     width: 100%;
     height: 220px;
     object-fit: cover;
     display: block;
   }
 
-  .hero-info {
+  ion-card-header {
     padding: 16px;
+  }
 
-    h1 {
-      margin: 0 0 6px 0;
-      font-size: 22px;
-      color: #1a1a1a;
-    }
+  ion-card-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
 
-    .price {
-      margin: 0 0 6px 0;
-      color: #22c55e;
+  .cert-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+
+    .badge {
+      padding: 6px 10px;
+      background: #ecfdf3;
+      color: #15803d;
+      border-radius: 999px;
+      font-size: 12px;
       font-weight: 600;
+      border: 1px solid #bbf7d0;
     }
+  }
 
-    .code {
-      margin: 0;
-      color: #666;
+  .hero-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
 
-      strong {
-        color: #1a1a1a;
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: #f1f5f9;
+      border-radius: 12px;
+      color: #0f172a;
+      font-weight: 600;
+      font-size: 13px;
+
+      ion-icon {
+        color: #22c55e;
+      }
+    }
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #475569;
+      font-size: 14px;
+
+      ion-icon {
+        color: #16a34a;
       }
     }
   }
@@ -189,4 +231,71 @@ ion-label .sub {
   margin: 0;
   color: #555;
   line-height: 1.5;
+}
+
+/* Nutrition */
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.nutri-item {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+
+  .label {
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  strong {
+    color: #0f172a;
+  }
+}
+
+.vitamins {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  .vitamin-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    padding: 6px 10px;
+    background: #ecfeff;
+    color: #0ea5e9;
+    border-radius: 999px;
+    border: 1px solid #bae6fd;
+    font-size: 12px;
+    font-weight: 600;
+  }
+}
+
+/* Map */
+.map-embed iframe {
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+/* Usage lists */
+ul {
+  padding-left: 18px;
+  margin: 6px 0 12px 0;
+
+  li {
+    margin-bottom: 6px;
+    color: #475569;
+  }
 }

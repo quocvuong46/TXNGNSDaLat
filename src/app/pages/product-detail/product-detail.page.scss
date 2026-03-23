@@ -261,3 +261,19 @@ ion-card {
     }
   }
 }
+
+/* Leaflet map styling */
+.map-container {
+  height: 250px;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+/* Ensure Leaflet internal container inherits rounded corners */
+.map-container .leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  border-radius: 12px !important;
+}

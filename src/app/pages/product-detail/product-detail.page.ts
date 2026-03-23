@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -13,6 +13,7 @@ import { addIcons } from 'ionicons';
 import { arrowBack, locationOutline, calendar, leaf, heart, heartOutline, informationCircle, alertCircleOutline } from 'ionicons/icons';
 import { ProductService } from '../../services/product.service';
 import { ProductOrigin, ProductTimelineEvent } from '../../models/interfaces';
+import * as L from 'leaflet';
 
 interface ProductDetailView {
   product_code: string;
@@ -31,6 +32,7 @@ interface ProductDetailView {
   unit?: string;
   price?: number;
   farmer?: { farm_name: string; location?: string };
+  mapCoordinates?: { lat: number; lng: number };
   farming_history?: any[];
 }
 
@@ -45,8 +47,10 @@ interface ProductDetailView {
     IonButtons, IonModal, CommonModule, FormsModule, RouterModule
   ]
 })
-export class ProductDetailPage implements OnInit {
+export class ProductDetailPage implements OnInit, OnDestroy {
   @ViewChild(IonModal) certModal?: IonModal;
+  @ViewChild('mapContainer', { static: false }) mapContainer?: ElementRef<HTMLDivElement>;
+  private map: L.Map | null = null;
   
   product: ProductDetailView | null = null;
   loading = true;
@@ -76,6 +80,10 @@ export class ProductDetailPage implements OnInit {
     const mock = this.productService.getMockProductByCode(code);
     if (mock) {
       this.product = this.mapOriginToView(mock);
+      // Initialize map if coordinates present (delay to let view render)
+      if (this.product.mapCoordinates) {
+        setTimeout(() => this.initMap(), 50);
+      }
     } else {
       this.product = null;
       this.showToast('Không tìm thấy sản phẩm (mock)');
@@ -106,13 +114,51 @@ export class ProductDetailPage implements OnInit {
     };
   }
 
+  private initMap() {
+    if (!this.product?.mapCoordinates || !this.mapContainer) return;
+    const { lat, lng } = this.product.mapCoordinates;
+
+    try {
+      // Remove existing map instance if any
+      if (this.map) {
+        this.map.remove();
+        this.map = null;
+      }
+
+      this.map = L.map(this.mapContainer!.nativeElement, {
+        center: [lat, lng],
+        zoom: 13,
+        zoomControl: true
+      });
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(this.map);
+
+      // Draw a highlighted circle marker to avoid needing default marker assets
+      L.circleMarker([lat, lng], { radius: 8, color: '#16a34a', fillColor: '#16a34a', fillOpacity: 0.9 }).addTo(this.map);
+
+      // Sometimes Leaflet needs a resize after being placed in a hidden container; call invalidateSize()
+      setTimeout(() => { try { this.map?.invalidateSize(); } catch (e) { /* noop */ } }, 200);
+    } catch (err) {
+      console.warn('Leaflet init failed', err);
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.map) {
+      try { this.map.remove(); } catch (_) { /* noop */ }
+      this.map = null;
+    }
+  }
+
   toggleFavorite() {
     this.isFavorite = !this.isFavorite;
     this.showToast(this.isFavorite ? 'Đã thêm vào yêu thích' : 'Đã xóa khỏi yêu thích');
   }
 
   goBack() {
-    // Navigate back to the previous page (farmer-dashboard or home)
+    // Navigate back to the previous page
     this.location.back();
   }
 

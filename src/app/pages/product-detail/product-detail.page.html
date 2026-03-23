@@ -92,15 +92,20 @@
       </ion-card-content>
     </ion-card>
 
-    <!-- Map Embed -->
-    <ion-card *ngIf="product.map_url">
+    <!-- Map: use Leaflet when coordinates available, else fallback to iframe if map_url provided -->
+    <ion-card *ngIf="product?.mapCoordinates || product?.map_url">
       <ion-card-header>
         <ion-card-title>Bản đồ nông trại</ion-card-title>
       </ion-card-header>
       <ion-card-content>
-        <div class="map-frame">
-          <iframe [src]="product.map_url" allowfullscreen loading="lazy"></iframe>
+        <div *ngIf="product?.mapCoordinates; else iframeMap">
+          <div #mapContainer class="map-container"></div>
         </div>
+        <ng-template #iframeMap>
+          <div class="map-frame">
+            <iframe [src]="product.map_url" allowfullscreen loading="lazy"></iframe>
+          </div>
+        </ng-template>
       </ion-card-content>
     </ion-card>
 

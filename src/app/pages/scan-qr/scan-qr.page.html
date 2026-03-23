@@ -18,9 +18,10 @@
           <video
             #video
             *ngIf="isScanning"
-            autoplay
-            muted
-            playsinline
+            autoplay="true"
+            muted="true"
+            playsinline="true"
+            webkit-playsinline="true"
           ></video>
         </div>
         <div class="scan-overlay" *ngIf="isScanning"></div>
@@ -36,10 +37,6 @@
         </div>
       </div>
 
-      <ion-button *ngIf="isScanning" expand="block" (click)="stopScan()" class="scan-btn stop-btn">
-        <ion-icon name="close-circle" slot="start"></ion-icon>
-        Dừng quét
-      </ion-button>
     </div>
 
     <!-- Manual Code Input -->

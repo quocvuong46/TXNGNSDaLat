@@ -1,62 +1,71 @@
 <ion-content class="login-content">
-  <div class="login-container">
-    <div class="header">
-      <ion-icon name="leaf" class="logo-icon"></ion-icon>
-      <h1>Nông sản Đà Lạt</h1>
-      <p>Truy xuất nguồn gốc</p>
-    </div>
-
-    <form (ngSubmit)="onLogin()">
-      <ion-item lines="none" class="input-item">
-        <ion-icon name="mail" slot="start"></ion-icon>
-        <ion-input 
-          type="email" 
-          placeholder="Email"
-          [(ngModel)]="credentials.email"
-          name="email"
-          required>
-        </ion-input>
-      </ion-item>
-
-      <ion-item lines="none" class="input-item">
-        <ion-icon name="lock-closed" slot="start"></ion-icon>
-        <ion-input 
-          type="password" 
-          placeholder="Mật khẩu"
-          [(ngModel)]="credentials.password"
-          name="password"
-          required>
-        </ion-input>
-      </ion-item>
-
-      <ion-button 
-        expand="block" 
-        type="submit" 
-        class="login-btn"
-        [disabled]="loading">
-        <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
-        <span *ngIf="!loading">Đăng nhập</span>
-      </ion-button>
-
-      <div class="api-debug">
-        <p>API: {{ apiUrl }}</p>
-        <ion-button fill="clear" size="small" (click)="testServer()">
-          Kiểm tra kết nối server
-        </ion-button>
-      </div>
-    </form>
-
-    <div class="social-login">
-      <p>Hoặc đăng nhập nhanh</p>
-      <ion-button expand="block" fill="outline" class="social-btn google" (click)="loginWithGoogle()" [disabled]="socialLoading === 'google'">
-        <ion-spinner *ngIf="socialLoading === 'google'" name="crescent"></ion-spinner>
-        <ion-icon *ngIf="socialLoading !== 'google'" name="logo-google" slot="start"></ion-icon>
-        <span>Google</span>
-      </ion-button>
-    </div>
-
-    <div class="register-link">
-      <p>Chưa có tài khoản? <a routerLink="/register">Đăng ký ngay</a></p>
+  <div class="login-container" *ngIf="isCheckingAuth; else loginForm">
+    <div class="loading-pane">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Đang đăng nhập...</p>
     </div>
   </div>
+
+  <ng-template #loginForm>
+    <div class="login-container">
+      <div class="header">
+        <ion-icon name="leaf" class="logo-icon"></ion-icon>
+        <h1>Nông sản Đà Lạt</h1>
+        <p>Truy xuất nguồn gốc</p>
+      </div>
+
+      <form (ngSubmit)="onLogin()">
+        <ion-item lines="none" class="input-item">
+          <ion-icon name="mail" slot="start"></ion-icon>
+          <ion-input 
+            type="email" 
+            placeholder="Email"
+            [(ngModel)]="credentials.email"
+            name="email"
+            required>
+          </ion-input>
+        </ion-item>
+
+        <ion-item lines="none" class="input-item">
+          <ion-icon name="lock-closed" slot="start"></ion-icon>
+          <ion-input 
+            type="password" 
+            placeholder="Mật khẩu"
+            [(ngModel)]="credentials.password"
+            name="password"
+            required>
+          </ion-input>
+        </ion-item>
+
+        <ion-button 
+          expand="block" 
+          type="submit" 
+          class="login-btn"
+          [disabled]="loading">
+          <ion-spinner *ngIf="loading" name="crescent"></ion-spinner>
+          <span *ngIf="!loading">Đăng nhập</span>
+        </ion-button>
+
+        <div class="api-debug">
+          <p>API: {{ apiUrl }}</p>
+          <ion-button fill="clear" size="small" (click)="testServer()">
+            Kiểm tra kết nối server
+          </ion-button>
+        </div>
+      </form>
+
+      <div class="social-login" *ngIf="!isCheckingAuth">
+        <p>Hoặc đăng nhập nhanh</p>
+        <ion-button expand="block" fill="outline" class="social-btn google" (click)="loginWithGoogle()" [disabled]="socialLoading === 'google'">
+          <ion-spinner *ngIf="socialLoading === 'google'" name="crescent"></ion-spinner>
+          <ion-icon *ngIf="socialLoading !== 'google'" name="logo-google" slot="start"></ion-icon>
+          <span>Google</span>
+        </ion-button>
+      </div>
+
+      <div class="register-link">
+        <p>Chưa có tài khoản? <a routerLink="/register">Đăng ký ngay</a></p>
+      </div>
+    </div>
+  </ng-template>
 </ion-content>
