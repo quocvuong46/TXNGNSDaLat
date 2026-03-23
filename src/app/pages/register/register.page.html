@@ -10,18 +10,6 @@
 
     <form (ngSubmit)="onRegister()">
       <ion-item lines="none" class="input-item">
-        <ion-icon name="person" slot="start"></ion-icon>
-        <ion-input 
-          id="reg-fullname"
-          type="text" 
-          placeholder="Họ và tên"
-          [(ngModel)]="registerData.full_name"
-          name="full_name"
-          required>
-        </ion-input>
-      </ion-item>
-
-      <ion-item lines="none" class="input-item">
         <ion-icon name="mail" slot="start"></ion-icon>
         <ion-input 
           id="reg-email"
@@ -30,17 +18,6 @@
           [(ngModel)]="registerData.email"
           name="email"
           required>
-        </ion-input>
-      </ion-item>
-
-      <ion-item lines="none" class="input-item">
-        <ion-icon name="call" slot="start"></ion-icon>
-        <ion-input 
-          id="reg-phone"
-          type="tel" 
-          placeholder="Số điện thoại"
-          [(ngModel)]="registerData.phone"
-          name="phone">
         </ion-input>
       </ion-item>
 

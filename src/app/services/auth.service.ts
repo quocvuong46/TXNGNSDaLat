@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, from, switchMap, map, catchError, throwError, of } from 'rxjs';
+import { BehaviorSubject, Observable, from, switchMap, map, catchError, throwError, of, combineLatest } from 'rxjs';
 import { ApiResponse, LoginRequest, RegisterRequest, User } from '../models/interfaces';
 import {
   Auth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signInWithPopup,
+  signInWithRedirect,
   signOut,
   onAuthStateChanged,
   User as FirebaseUser,
@@ -14,9 +14,12 @@ import {
   AuthProvider,
   signInWithCredential
 } from '@angular/fire/auth';
+import { getRedirectResult } from 'firebase/auth';
 import { Capacitor } from '@capacitor/core';
 import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
+import { Router } from '@angular/router';
+import { LoadingController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -25,13 +28,45 @@ export class AuthService {
   private apiUrl = 'Firebase';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+  private redirectLoadingSubject = new BehaviorSubject<boolean>(false);
+  public redirectLoading$ = this.redirectLoadingSubject.asObservable();
+  private authReadySubject = new BehaviorSubject<boolean>(false);
+  public authReady$ = this.authReadySubject.asObservable();
 
   constructor(
     private auth: Auth,
-    private firestore: Firestore
+    private firestore: Firestore,
+    private router: Router,
+    private loadingCtrl: LoadingController
   ) {
     this.restoreFromStorage();
+    this.handleRedirectResultForWeb();
     this.listenAuthChanges();
+  }
+
+  private async handleRedirectResultForWeb() {
+    if (Capacitor.isNativePlatform()) return;
+
+    this.redirectLoadingSubject.next(true);
+    const loading = await this.loadingCtrl.create({ message: 'Đang đồng bộ dữ liệu...' });
+    await loading.present();
+    try {
+      const result = await getRedirectResult(this.auth as any);
+      if (result?.user) {
+        const { token, user } = await this.buildSessionFromFirebaseUser(result.user);
+        this.persistSession(token, user);
+        this.currentUserSubject.next(user);
+        if (this.router.url === '/login') {
+          await this.router.navigate(['/home']);
+        }
+      }
+    } catch (err) {
+      console.warn('Google redirect result error', err);
+    } finally {
+      this.redirectLoadingSubject.next(false);
+      await loading.dismiss();
+      this.authReadySubject.next(true);
+    }
   }
 
   private listenAuthChanges() {
@@ -47,10 +82,12 @@ export class AuthService {
           if (storedUser) {
             this.currentUserSubject.next(storedUser);
           }
+          this.authReadySubject.next(true);
           return;
         }
         this.clearSession();
       }
+      this.authReadySubject.next(true);
     });
   }
 
@@ -59,6 +96,7 @@ export class AuthService {
     const user = localStorage.getItem('user');
     if (token && user) {
       this.currentUserSubject.next(JSON.parse(user));
+      this.authReadySubject.next(true);
     }
   }
 
@@ -158,13 +196,12 @@ export class AuthService {
         const profile: User = {
           id: firebaseUser.uid,
           email: data.email,
-          full_name: data.full_name,
-          phone: data.phone,
+          full_name: data.email,
           role: 'customer'
         };
 
         return from(Promise.all([
-          updateProfile(firebaseUser, { displayName: data.full_name }),
+          updateProfile(firebaseUser, { displayName: data.email }),
           setDoc(doc(this.firestore, 'users', firebaseUser.uid), profile),
           firebaseUser.getIdToken()
         ])).pipe(
@@ -184,7 +221,31 @@ export class AuthService {
       await signOut(this.auth);
     } finally {
       this.clearSession();
+      this.currentUserSubject.next(null);
+      this.redirectLoadingSubject.next(false);
+      this.authReadySubject.next(true);
+      await this.router.navigate(['/login']);
     }
+  }
+
+  async waitForAuthReady(timeoutMs = 2200): Promise<void> {
+    const settled = () => this.authReadySubject.value && !this.redirectLoadingSubject.value;
+    if (settled()) return;
+
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => {
+        sub.unsubscribe();
+        resolve();
+      }, timeoutMs);
+
+      const sub = combineLatest([this.authReady$, this.redirectLoading$]).subscribe(([ready, loading]) => {
+        if (ready && !loading) {
+          clearTimeout(timer);
+          sub.unsubscribe();
+          resolve();
+        }
+      });
+    });
   }
 
   getToken(): string | null {
@@ -213,15 +274,10 @@ export class AuthService {
   }
 
   private loginWithProvider(provider: AuthProvider): Observable<ApiResponse<{ token: string; user: User }>> {
-    // Web fallback: still can use popup
+    // Web: use redirect to avoid popup issues on mobile browsers
     if (!Capacitor.isNativePlatform()) {
-      return from(signInWithPopup(this.auth, provider)).pipe(
-        switchMap((credential) => from(this.buildSessionFromFirebaseUser(credential.user))),
-        map(({ token, user }) => {
-          this.persistSession(token, user);
-          this.currentUserSubject.next(user);
-          return { success: true, data: { token, user } } satisfies ApiResponse<{ token: string; user: User }>;
-        }),
+      return from(signInWithRedirect(this.auth, provider)).pipe(
+        map(() => ({ success: true, message: 'Redirecting to Google for sign-in' } as ApiResponse<{ token: string; user: User }>)),
         catchError((err) => throwError(() => this.normalizeError(err)))
       );
     }

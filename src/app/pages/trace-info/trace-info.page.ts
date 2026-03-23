@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import {
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon,
+  IonContent, IonHeader, IonTitle, IonToolbar, IonIcon,
   IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonSpinner,
-  IonList, IonItem, IonLabel, IonButtons, IonBackButton
+  IonList, IonItem, IonLabel, IonButtons, IonBackButton, IonButton
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
@@ -23,9 +23,9 @@ import { ProductDetail, PRODUCT_DETAIL_MOCKS } from './mock-data';
   styleUrls: ['./trace-info.page.scss'],
   standalone: true,
   imports: [
-    IonContent, IonHeader, IonTitle, IonToolbar, IonButton, IonIcon,
+  IonContent, IonHeader, IonTitle, IonToolbar, IonIcon,
     IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonSpinner,
-    IonList, IonItem, IonLabel, IonButtons, IonBackButton,
+    IonList, IonItem, IonLabel, IonButtons, IonBackButton, IonButton,
     CommonModule, RouterModule
   ]
 })
@@ -93,20 +93,41 @@ export class TraceInfoPage implements OnInit {
             name: response.data.product?.name ?? code,
             coverImage: response.data.product?.image_url ?? response.data.product?.images?.[0] ?? 'assets/placeholder.jpg',
             description: response.data.product?.description ?? 'Không có mô tả',
+            price: response.data.product?.price,
+            unit: response.data.product?.unit,
+            stock: response.data.product?.quantity,
+            status: response.data.product?.status,
+            scanCount: response.data.product?.scan_count,
+            certifications: response.data.product?.certifications
+              ? (Array.isArray(response.data.product.certifications)
+                ? response.data.product.certifications
+                : [response.data.product.certifications])
+              : undefined,
             originInfo: {
               origin: response.data.product?.origin ?? 'Đà Lạt',
               harvestDate: response.data.product?.harvest_date ?? response.data.product?.harvestDate ?? '',
               farmName: response.data.product?.farm_name ?? response.data.product?.farmName ?? '',
-              address: response.data.product?.farm_address ?? response.data.product?.location ?? ''
+              address: response.data.product?.farm_address ?? response.data.product?.location ?? '',
+              contactName: response.data.product?.farmer_name ?? response.data.product?.farmerName,
+              contactPhone: response.data.product?.farmer_phone ?? response.data.product?.farmerPhone,
+              storage: response.data.product?.storage
             },
             certificate: {
               name: response.data.product?.certifications ?? 'Chưa cập nhật',
               url: response.data.product?.certificate_url ?? '#'
             },
-            mapCoordinates: {
-              lat: 0,
-              lng: 0
+            batch: {
+              lot: response.data.product?.batch_no ?? response.data.product?.lot ?? 'N/A',
+              packDate: response.data.product?.pack_date ?? '',
+              expiryDate: response.data.product?.expiry_date ?? response.data.product?.exp_date ?? '',
+              storage: response.data.product?.storage
             },
+            mapCoordinates: {
+              lat: response.data.product?.mapCoordinates?.lat ?? 0,
+              lng: response.data.product?.mapCoordinates?.lng ?? 0
+            },
+            nutrition: response.data.product?.nutrition,
+            usage: response.data.product?.usage,
             timeline: response.data.farming_history ?? []
           };
           this.product = mapped;
@@ -139,7 +160,15 @@ export class TraceInfoPage implements OnInit {
   getMapEmbedUrl(): string {
     if (!this.product?.mapCoordinates) return '';
     const { lat, lng } = this.product.mapCoordinates;
+    if (!lat && !lng) return '';
     return `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.01}%2C${lat - 0.01}%2C${lng + 0.01}%2C${lat + 0.01}&layer=mapnik&marker=${lat}%2C${lng}`;
+  }
+
+  getExternalMapUrl(): string {
+    if (!this.product?.mapCoordinates) return '';
+    const { lat, lng } = this.product.mapCoordinates;
+    if (!lat && !lng) return '';
+    return `https://www.google.com/maps?q=${lat},${lng}`;
   }
 
   getMapSafeUrl(): SafeResourceUrl | null {

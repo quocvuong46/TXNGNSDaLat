@@ -12,9 +12,7 @@
     </div>
     <h2>{{ user.full_name }}</h2>
     <p class="email">{{ user.email }}</p>
-    <div class="user-badge" [class.farmer]="user.role === 'farmer'" [class.customer]="user.role === 'customer'">
-      {{ user.role === 'farmer' ? 'Nông dân' : 'Khách hàng' }}
-    </div>
+    <div class="user-badge customer">Khách hàng</div>
   </div>
 
   <!-- Menu List -->
@@ -25,14 +23,13 @@
           <ion-icon name="person"></ion-icon>
         </div>
         <ion-label>
-          <h3>Thông tin nông trại</h3>
-          <p *ngIf="user?.role === 'farmer'">Nông trại Hoa Lan</p>
-          <p *ngIf="user?.role === 'customer'">Xem và chỉnh sửa thông tin</p>
+          <h3>Thông tin tài khoản</h3>
+          <p>Xem và chỉnh sửa thông tin</p>
         </ion-label>
         <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
       </ion-item>
 
-      <ion-item button detail lines="full" *ngIf="user?.role === 'customer'">
+      <ion-item button detail lines="full">
         <div class="menu-icon red">
           <ion-icon name="heart"></ion-icon>
         </div>
@@ -43,7 +40,7 @@
         <ion-icon name="chevron-forward" slot="end" color="medium"></ion-icon>
       </ion-item>
 
-      <ion-item button detail lines="full" *ngIf="user?.role === 'customer'">
+      <ion-item button detail lines="full">
         <div class="menu-icon purple">
           <ion-icon name="time"></ion-icon>
         </div>
@@ -118,27 +115,4 @@
   </ion-tab-button>
 </ion-tab-bar>
 
-<!-- Bottom Tab Bar for Farmer -->
-<ion-tab-bar slot="bottom" color="light" *ngIf="user?.role === 'farmer'">
-  <ion-tab-button routerLink="/farmer-dashboard">
-    <ion-icon name="home"></ion-icon>
-    <ion-label>Trang chủ</ion-label>
-  </ion-tab-button>
-
-  <ion-tab-button>
-    <ion-icon name="search"></ion-icon>
-    <ion-label>Tìm kiếm</ion-label>
-  </ion-tab-button>
-
-  <ion-tab-button routerLink="/add-product" class="add-tab">
-    <div class="add-button">
-      <ion-icon name="add"></ion-icon>
-    </div>
-    <ion-label>Thêm</ion-label>
-  </ion-tab-button>
-
-  <ion-tab-button tab="profile" class="tab-selected">
-    <ion-icon name="person"></ion-icon>
-    <ion-label>Tài khoản</ion-label>
-  </ion-tab-button>
-</ion-tab-bar>
+<!-- Farmer tab bar removed -->

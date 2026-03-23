@@ -3,19 +3,8 @@ export interface User {
   email: string;
   full_name: string;
   phone?: string;
-  role: 'admin' | 'farmer' | 'customer';
+  role: 'admin' | 'customer';
   avatar?: string;
-  farmer?: FarmerProfile;
-}
-
-export interface FarmerProfile {
-  id: number;
-  user_id: number;
-  farm_name: string;
-  farm_address?: string;
-  district?: string;
-  province?: string;
-  certifications?: string;
 }
 
 export interface Product {
@@ -91,9 +80,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   email: string;
   password: string;
-  full_name: string;
-  phone?: string;
-  role?: 'farmer' | 'customer';
+  role?: 'customer';
 }
 
 export interface ApiResponse<T> {

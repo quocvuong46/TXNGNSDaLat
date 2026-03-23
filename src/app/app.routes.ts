@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
-import { FarmerGuard } from './guards/farmer.guard';
 
 export const routes: Routes = [
   {
@@ -22,16 +21,6 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'farmer-dashboard',
-    loadComponent: () => import('./pages/farmer-dashboard/farmer-dashboard.page').then( m => m.FarmerDashboardPage),
-    canActivate: [FarmerGuard]
-  },
-  {
-    path: 'add-product',
-    loadComponent: () => import('./pages/add-product/add-product.page').then( m => m.AddProductPage),
-    canActivate: [FarmerGuard]
-  },
-  {
     path: 'scan-qr',
     loadComponent: () => import('./pages/scan-qr/scan-qr.page').then( m => m.ScanQrPage),
     canActivate: [AuthGuard]
@@ -41,13 +30,8 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/trace-info/trace-info.page').then( m => m.TraceInfoPage)
   },
   {
-    path: 'product-detail/:id',
-    loadComponent: () => import('./pages/product-detail/product-detail.page').then( m => m.ProductDetailPage),
-    canActivate: [AuthGuard]
-  },
-  {
     path: 'profile',
     loadComponent: () => import('./pages/profile/profile.page').then( m => m.ProfilePage),
     canActivate: [AuthGuard]
-  },
+  }
 ];

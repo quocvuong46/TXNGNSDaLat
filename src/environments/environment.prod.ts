@@ -2,7 +2,7 @@ export const environment = {
   production: true,
   firebase: {
     apiKey: 'AIzaSyC1VYcVwoYS1fSQy0AjtHVti5oRaqiWkNg',
-    authDomain: 'traceability-d2da8.firebaseapp.com',
+    authDomain: 'traceability.doquocvuong.id.vn',
     projectId: 'traceability-d2da8',
     storageBucket: 'traceability-d2da8.firebasestorage.app',
     messagingSenderId: '917076566370',
