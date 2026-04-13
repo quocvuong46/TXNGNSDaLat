@@ -5,7 +5,7 @@
         <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title>Quét mã QR</ion-title>
+  <ion-title>Quét mã QR / mã vạch</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -27,13 +27,13 @@
         <div class="scan-overlay" *ngIf="isScanning"></div>
         <div class="scan-guidance" *ngIf="isScanning">
           <ion-icon name="qr-code"></ion-icon>
-          <p>Đưa mã QR vào khung để quét</p>
+          <p>Đưa mã QR hoặc mã vạch vào khung để quét</p>
         </div>
         <div *ngIf="!isScanning" class="scanner-placeholder">
           <div class="qr-icon-large">
             <ion-icon name="qr-code"></ion-icon>
           </div>
-          <p class="scan-text">Đưa mã QR vào khung để quét</p>
+          <p class="scan-text">Đưa mã QR hoặc mã vạch vào khung để quét</p>
         </div>
       </div>
 
@@ -61,7 +61,7 @@
       <h4>Hướng dẫn sử dụng</h4>
       <div class="info-item">
         <ion-icon name="checkmark-circle" color="success"></ion-icon>
-        <p>Đưa mã QR trên bao bì sản phẩm vào khung quét</p>
+  <p>Đưa mã QR hoặc mã vạch trên bao bì sản phẩm vào khung quét</p>
       </div>
       <div class="info-item">
         <ion-icon name="checkmark-circle" color="success"></ion-icon>
@@ -74,3 +74,39 @@
     </div>
   </div>
 </ion-content>
+
+<ion-modal [isOpen]="isResultModalOpen" (didDismiss)="onResultModalDismiss()">
+  <ng-template>
+    <div class="external-product-modal">
+      <div class="modal-header">
+        <h2>Sản phẩm siêu thị</h2>
+        <ion-button fill="clear" size="small" (click)="closeResultModal()">
+          <ion-icon name="close-circle" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+
+      <ion-card class="result-card">
+        <div class="modal-image-wrap" *ngIf="productData.image; else noImage">
+          <img [src]="productData.image" [alt]="productData.name" />
+        </div>
+        <ng-template #noImage>
+          <div class="modal-image-wrap placeholder">
+            <ion-icon name="qr-code"></ion-icon>
+            <p>Không có hình ảnh</p>
+          </div>
+        </ng-template>
+
+        <ion-card-header>
+          <ion-card-title>{{ productData.name || 'Không rõ tên sản phẩm' }}</ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          <p class="label">Thương hiệu</p>
+          <p class="value">{{ productData.brand || 'Không rõ thương hiệu' }}</p>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-button expand="block" color="success" (click)="closeResultModal()">Đóng</ion-button>
+    </div>
+  </ng-template>
+</ion-modal>

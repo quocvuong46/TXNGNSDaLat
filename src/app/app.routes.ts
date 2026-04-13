@@ -30,6 +30,11 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/trace-info/trace-info.page').then( m => m.TraceInfoPage)
   },
   {
+    path: 'product-detail/:id',
+    loadComponent: () => import('./pages/product-detail/product-detail.page').then( m => m.ProductDetailPage),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'profile',
     loadComponent: () => import('./pages/profile/profile.page').then( m => m.ProfilePage),
     canActivate: [AuthGuard]
